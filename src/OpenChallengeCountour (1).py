@@ -5,27 +5,20 @@ import serial
 from time import sleep
 import RPi.GPIO as GPIO
 
-#angles: Straight - 98 degrees
-ser = serial.Serial('/dev/ttyACM0', 115200, timeout = 1) 
-ser.flush()
-
-color = (0, 255, 255)
-thickness = 4
-
 def write(value): 
     ser.write((str(value)).encode('utf-8'))
     print("signal sent", value)
 
 def displayROI(img, ROI1, ROI2):
-    image = cv2.line(img, (ROI1[0], ROI1[1]), (ROI1[2], ROI1[1]), color, thickness)
-    image = cv2.line(img, (ROI1[0], ROI1[1]), (ROI1[0], ROI1[3]), color, thickness)
-    image = cv2.line(img, (ROI1[2], ROI1[3]), (ROI1[2], ROI1[1]), color, thickness)
-    image = cv2.line(img, (ROI1[2], ROI1[3]), (ROI1[0], ROI1[3]), color, thickness)
+    image = cv2.line(img, (ROI1[0], ROI1[1]), (ROI1[2], ROI1[1]), (0, 255, 255), 4)
+    image = cv2.line(img, (ROI1[0], ROI1[1]), (ROI1[0], ROI1[3]), (0, 255, 255), 4)
+    image = cv2.line(img, (ROI1[2], ROI1[3]), (ROI1[2], ROI1[1]), (0, 255, 255), 4)
+    image = cv2.line(img, (ROI1[2], ROI1[3]), (ROI1[0], ROI1[3]), (0, 255, 255), 4)
     
-    image = cv2.line(img, (ROI2[0], ROI2[1]), (ROI2[2], ROI2[1]), color, thickness)
-    image = cv2.line(img, (ROI2[0], ROI2[1]), (ROI2[0], ROI2[3]), color, thickness)
-    image = cv2.line(img, (ROI2[2], ROI2[3]), (ROI2[2], ROI2[1]), color, thickness)
-    image = cv2.line(img, (ROI2[2], ROI2[3]), (ROI2[0], ROI2[3]), color, thickness)
+    image = cv2.line(img, (ROI2[0], ROI2[1]), (ROI2[2], ROI2[1]), (0, 255, 255), 4)
+    image = cv2.line(img, (ROI2[0], ROI2[1]), (ROI2[0], ROI2[3]), (0, 255, 255), 4)
+    image = cv2.line(img, (ROI2[2], ROI2[3]), (ROI2[2], ROI2[1]), (0, 255, 255), 4)
+    image = cv2.line(img, (ROI2[2], ROI2[3]), (ROI2[0], ROI2[3]), (0, 255, 255), 4)
     
 if __name__ == '__main__':
     
@@ -37,36 +30,39 @@ if __name__ == '__main__':
     picam2.configure("preview")
     picam2.start()
     
-    kp = 0.0131
-    kd = 0
+    ser = serial.Serial('/dev/ttyACM0', 115200, timeout = 1) 
+    ser.flush()
     
-    straightConst = 98
-
-    # order: x1, y1, x2, y2
-    ROI1 = [40, 200, 180, 275]
-    ROI2 = [520, 170, 640, 255]
-
-    width = 640
-    height = 480
-  
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-  
-    speed = 1424
     
+    # order: x1, y1, x2, y2
+    ROI1 = [40, 200, 180, 275]
+    ROI2 = [520, 170, 640, 255]
+    
+    kp = 0.0131
+    kd = 0
+    
+    straightConst = 98 #angle in which car goes straight
+    
+    angle = 2098
     sharpRight = 2068
     sharpLeft = 2128
+  
+    speed = 1424
     
     turns = 0
     
     aDiff = 0
     prevDiff = 0
 
+    sleep(8)
+
     while True:
         if GPIO.input(5) == GPIO.LOW:
             break
- 
+        
     write(speed)
     write(angle)
 
@@ -88,14 +84,12 @@ if __name__ == '__main__':
         contours_right, hierarchy = cv2.findContours(imgThresh[ROI2[1]:ROI2[3], ROI2[0]:ROI2[2]], 
         cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
-        for i in range(len(contours_left)):
-            cnt = contours_left[i]
+        for cnt in contours_left:
             area = cv2.contourArea(cnt)
             
             leftArea = max(area, leftArea) 
         
-        for i in range(len(contours_right)):
-            cnt = contours_right[i]
+        for cnt in contours_right:
             area = cv2.contourArea(cnt)
 
             rightArea = max(area, rightArea)
@@ -115,13 +109,11 @@ if __name__ == '__main__':
         prevDiff = aDiff
         
         cv2.imshow("finalColor", img)
-        
-        angle = min(max(angle, sharpRight), sharpLeft)
             
-        write(angle)
+        write(angle) 
         
-        if cv2.waitKey(1)==ord('q'):      
-            write(1500)
+        if cv2.waitKey(1)==ord('q'):     
+            write(1500) 
             write(2098)
             break
         
