@@ -143,8 +143,8 @@ if __name__ == '__main__':
         if angle - sharpRight <= 5:
             angle = sharpRight
         
-        #if 20 or more of the previous 40 angle values are sharpRight or sharpLeft indicating a turn
-        if prevAng.count(sharpLeft) >= 20 or prevAng.count(sharpRight) >= 20:
+        #if 20 or more of the previous 40 angle values are sharpRight or sharpLeft indicating a turn and the angle is not sharp meaning the turn is finished
+        if (prevAng.count(sharpLeft) >= 20 or prevAng.count(sharpRight) >= 20) and (angle != sharpLeft and angle != sharpRight):
             prevAng = [angle] #reset list 
             t += 1 #add one turn
           
@@ -164,8 +164,8 @@ if __name__ == '__main__':
             
             prevAng.append(angle) #add the current angle to the list
 
-        #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is not still in the turn
-        if cv2.waitKey(1)==ord('q') or (t == 12 and (angle != sharpLeft and angle != sharpRight)):
+        #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns)
+        if cv2.waitKey(1)==ord('q') or t == 12:
             stopCar() 
             break
 
