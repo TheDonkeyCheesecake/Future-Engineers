@@ -52,14 +52,9 @@ if __name__ == '__main__':
     # order: x1, y1, x2, y2
     ROI1 = [10, 215, 270, 295]
     ROI2 = [380, 180, 640, 255]
-    
-    inTurn = False
 
-    #list storing the previous angles of the car
-    #used for counting turns
-    prevAng = [2098]
-
-    l = 40 #how many angles prevAng list stores
+    inTurn = False #boolean tracking whether car is in turn
+  
     t = 0 #number of turns car has completed
     
     kp = 0.004 #value of proportional for proportional steering
@@ -129,7 +124,10 @@ if __name__ == '__main__':
             area = cv2.contourArea(cnt)
 
             rightArea = max(area, rightArea)
+
+        #draw all contours in full image
         
+        '''
         for i in range(len(contours)):
             cnt = contours[i]
             area = cv2.contourArea(cnt)
@@ -137,15 +135,14 @@ if __name__ == '__main__':
             cv2.drawContours(img, contours, i, (0, 255, 0), 2)
             approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
             x,y,w,h=cv2.boundingRect(approx)
-            #cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
+        '''
          
         #calculate difference of areas between the areas of the lanes
         aDiff = rightArea - leftArea
-        aSum = rightArea + leftArea
-       
+
+        #calculate angle using PD steering
         angle = int(straightConst + aDiff * kp + (aDiff - prevDiff) * kd) + 2000
 
-        #if angle is within 5 degrees of the sharpLeft or sharpRight value change angle accordingly
         if leftArea <= 300 and not inTurn:
             angle = max(angle, sharpLeft) 
             inTurn = True
@@ -153,21 +150,18 @@ if __name__ == '__main__':
         elif rightArea <= 300 and not inTurn:
             angle = min(angle, sharpRight) 
             inTurn = True
-        
-        #if 20 or more of the previous 40 angle values are sharpRight or sharpLeft indicating a turn
-        #if (prevAng.count(sharpLeft) >= 20 or prevAng.count(sharpRight) >= 20) and (angle != sharpLeft and angle != sharpRight):
-            #prevAng = [angle] #reset list 
-            #t += 1 #add one turn
-        
        
         if angle != prevAngle:
-            if angle >= sharpLeft or angle <= sharpRight and inTurn and abs(angle - prevAngle)  < tDeviation:
-                write(angle) 
-            if (leftArea >= 1500 and rightArea >= 1500 and inTurn) or not inTurn: 
-                write(angle)
-                if inTurn:
-                    inTurn = False
-                    t += 1
+            if inTurn: 
+              if angle >= sharpLeft or angle <= sharpRight and abs(angle - prevAngle)  < tDeviation:
+                  write(angle)
+              elif leftArea >= 1500 and rightArea >= 1500: 
+                  write(angle)
+                  inTurn = False
+                  t += 1
+                
+            else: 
+              write(angle)
           
         #update previous area difference
         prevDiff = aDiff
@@ -179,16 +173,17 @@ if __name__ == '__main__':
 
         #display values
         print(leftArea, rightArea)
-        print(aSum) 
         #print(t)
         print(inTurn)
         print(angle)
         print(prevAngle)
         
-        prevAngle = angle
+        prevAngle = angle #update previous angle
         
         #display regions of interest
         displayROI(img, ROI1, ROI2)
+
+        #show image
         cv2.imshow("finalColor", img)
         
     #close all image windows
