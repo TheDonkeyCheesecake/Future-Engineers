@@ -53,7 +53,8 @@ if __name__ == '__main__':
     ROI1 = [10, 215, 270, 295]
     ROI2 = [380, 180, 640, 255]
 
-    inTurn = False #boolean tracking whether car is in turn
+    lTurn = False #boolean tracking whether car is in turn
+    rTurn = False
   
     t = 0 #number of turns car has completed
     
@@ -143,25 +144,28 @@ if __name__ == '__main__':
         #calculate angle using PD steering
         angle = int(straightConst + aDiff * kp + (aDiff - prevDiff) * kd) + 2000
 
-        if leftArea <= 300 and not inTurn:
-            angle = max(angle, sharpLeft) 
-            inTurn = True
+        if leftArea <= 300 and not rTurn:
+            lTurn = True
 
-        elif rightArea <= 300 and not inTurn:
-            angle = min(angle, sharpRight) 
-            inTurn = True
+        elif rightArea <= 300 and not lTurn:
+            rTurn = True
        
         if angle != prevAngle:
-            if inTurn: 
-              if angle >= sharpLeft or angle <= sharpRight and abs(angle - prevAngle)  < tDeviation:
-                  write(angle)
-              elif leftArea >= 1500 and rightArea >= 1500: 
-                  write(angle)
-                  inTurn = False
+            if lTurn or rTurn: 
+              
+              if leftArea >= 1500 and rightArea >= 1500: 
+                  lTurn = False
+                  rTurn = False
                   t += 1
                 
-            else: 
-              write(angle)
+              elif lTurn:
+                  angle = max(angle, sharpLeft)
+              elif rTurn: 
+                  angle = min(angle, sharpRight)
+
+            write(angle)
+                
+            
           
         #update previous area difference
         prevDiff = aDiff
