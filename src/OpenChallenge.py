@@ -1,6 +1,5 @@
 #import necessary libraries
 import cv2
-import numpy as np
 from picamera2 import Picamera2
 import serial
 from time import sleep
@@ -53,21 +52,25 @@ if __name__ == '__main__':
     ROI1 = [55, 215, 315, 295]
     ROI2 = [380, 185, 640, 250]
 
-    lTurn = False #boolean tracking whether car is in turn
+    #booleans for tracking whether car is in a left or right turn
+    lTurn = False
     rTurn = False
   
     t = 0 #number of turns car has completed
     
     kp = 0.004 #value of proportional for proportional steering
-    kd = 0.004 #value of derivative for proportional and derivative sterring
+    kd = 0.004 #value of derivative for proportional and derivative sterrin
     
     straightConst = 98 #angle in which car goes straight
-    
+
+    turnThresh = 250 #if area of a lane is under this threshold car goes into a turn
+    exitThresh = 1900 #if area of both lanes is over this threshold car exits a turn
+  
     angle = 2098 #variable for the current angle of the car
-    prevAngle = angle
-    tDeviation = 20 #value used to calculate the sharpest turns left and right the car can make
-    sharpRight = straightConst - tDeviation + 2000 #the sharpest right the car may turn
-    sharpLeft = straightConst + tDeviation + 2000 #the sharpest left the car may turn
+    prevAngle = angle #variable tracking the angle of the previous iteration
+    tDeviation = 20 #value used to calculate the how far left and right the car turns during a turn
+    sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
+    sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
     speed = 1430 #variable for the speed of the car
     targetS = 1440 #value speed will reach for acceleration
@@ -128,7 +131,6 @@ if __name__ == '__main__':
 
         #draw all contours in full image
         
-        
         for i in range(len(contours)):
             cnt = contours[i]
             area = cv2.contourArea(cnt)
@@ -136,7 +138,6 @@ if __name__ == '__main__':
             cv2.drawContours(img, contours, i, (0, 255, 0), 2)
             approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
             x,y,w,h=cv2.boundingRect(approx)
-        
          
         #calculate difference of areas between the areas of the lanes
         aDiff = rightArea - leftArea
@@ -144,33 +145,40 @@ if __name__ == '__main__':
         #calculate angle using PD steering
         angle = int(straightConst + aDiff * kp + (aDiff - prevDiff) * kd) + 2000
 
-        if leftArea <= 250 and not rTurn:
+        #if area of either lane is less than or equal to turnThresh and is not in a turn going the other direction, set the boolean of the respective direction turn to true
+        if leftArea <= turnThresh and not rTurn:
             lTurn = True
 
-        elif rightArea <= 250 and not lTurn:
+        elif rightArea <= turnThresh and not lTurn:
             rTurn = True
-       
+
+        #if angle is different from previous angle
         if angle != prevAngle:
+            #if car is in a left or right turn
             if lTurn or rTurn: 
-              
-              if leftArea >= 1900 and rightArea >= 1900: 
-                  lTurn = False
+
+              #if area of both lanes exceed or equal exitThresh, meaning the turn is completed
+              if leftArea >= exitThresh and rightArea >= exitThresh: 
+                  #set turn variables to false as turn is over
+                  lTurn = False 
                   rTurn = False
+                  #increase number of turns by 1
                   t += 1
-                
+
+              #if car is still in a left turn set the angle to the maximum of angle and sharpLeft
               elif lTurn:
                   angle = max(angle, sharpLeft)
+              #if car is still in a right turn set the angle to the minimum of angle and sharpRight
               elif rTurn: 
                   angle = min(angle, sharpRight)
 
-            write(angle)
-                
-            
+            #write angle to arduino to change servo
+            write(angle)      
           
         #update previous area difference
         prevDiff = aDiff
             
-        #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is not still in the turn
+        #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is not still in the turn (does this by checking whether the angle is within 10 of straight)
         if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 10) :
             stopCar() 
             break
