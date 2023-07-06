@@ -50,8 +50,8 @@ if __name__ == '__main__':
 
     #lists storing coordinates for the regions of interest to find contours of the lanes
     # order: x1, y1, x2, y2
-    ROI1 = [10, 215, 270, 295]
-    ROI2 = [380, 180, 640, 255]
+    ROI1 = [55, 215, 315, 295]
+    ROI2 = [380, 185, 640, 250]
 
     lTurn = False #boolean tracking whether car is in turn
     rTurn = False
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         #threshold image
-        ret, imgThresh = cv2.threshold(imgGray, 40, 255, cv2.THRESH_BINARY_INV)
+        ret, imgThresh = cv2.threshold(imgGray, 50, 255, cv2.THRESH_BINARY_INV)
 
         #find left and right contours of the lanes
         contours_left, hierarchy = cv2.findContours(imgThresh[ROI1[1]:ROI1[3], ROI1[0]:ROI1[2]], 
@@ -128,7 +128,7 @@ if __name__ == '__main__':
 
         #draw all contours in full image
         
-        '''
+        
         for i in range(len(contours)):
             cnt = contours[i]
             area = cv2.contourArea(cnt)
@@ -136,7 +136,7 @@ if __name__ == '__main__':
             cv2.drawContours(img, contours, i, (0, 255, 0), 2)
             approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
             x,y,w,h=cv2.boundingRect(approx)
-        '''
+        
          
         #calculate difference of areas between the areas of the lanes
         aDiff = rightArea - leftArea
@@ -144,16 +144,16 @@ if __name__ == '__main__':
         #calculate angle using PD steering
         angle = int(straightConst + aDiff * kp + (aDiff - prevDiff) * kd) + 2000
 
-        if leftArea <= 300 and not rTurn:
+        if leftArea <= 250 and not rTurn:
             lTurn = True
 
-        elif rightArea <= 300 and not lTurn:
+        elif rightArea <= 250 and not lTurn:
             rTurn = True
        
         if angle != prevAngle:
             if lTurn or rTurn: 
               
-              if leftArea >= 1500 and rightArea >= 1500: 
+              if leftArea >= 1900 and rightArea >= 1900: 
                   lTurn = False
                   rTurn = False
                   t += 1
@@ -178,7 +178,6 @@ if __name__ == '__main__':
         #display values
         print(leftArea, rightArea)
         #print(t)
-        print(inTurn)
         print(angle)
         print(prevAngle)
         
