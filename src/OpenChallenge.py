@@ -49,8 +49,8 @@ if __name__ == '__main__':
 
     #lists storing coordinates for the regions of interest to find contours of the lanes
     # order: x1, y1, x2, y2
-    ROI1 = [55, 215, 315, 295]
-    ROI2 = [380, 185, 640, 250]
+    ROI1 = [55, 205, 315, 295]
+    ROI2 = [380, 185, 640, 255]
 
     #booleans for tracking whether car is in a left or right turn
     lTurn = False
@@ -64,11 +64,11 @@ if __name__ == '__main__':
     straightConst = 98 #angle in which car goes straight
 
     turnThresh = 250 #if area of a lane is under this threshold car goes into a turn
-    exitThresh = 1900 #if area of both lanes is over this threshold car exits a turn
+    exitThresh = 1500 #if area of both lanes is over this threshold car exits a turn
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
-    tDeviation = 20 #value used to calculate the how far left and right the car turns during a turn
+    tDeviation = 25 #value used to calculate the how far left and right the car turns during a turn
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
@@ -81,9 +81,9 @@ if __name__ == '__main__':
     sleep(8) #delay 8 seconds for the servo to be ready
 
     #if button is pressed break out of loop and proceed with rest of program
-    #while True:
-        #if GPIO.input(5) == GPIO.LOW:
-            #break
+    while True:
+        if GPIO.input(5) == GPIO.LOW:
+            break
 
     #write initial values to car
     write(speed) 
@@ -145,12 +145,14 @@ if __name__ == '__main__':
         #calculate angle using PD steering
         angle = int(straightConst + aDiff * kp + (aDiff - prevDiff) * kd) + 2000
 
-        #if area of either lane is less than or equal to turnThresh and is not in a turn going the other direction, set the boolean of the respective direction turn to true
-        if leftArea <= turnThresh and not rTurn:
+        #if the area of either lane is less than or equal to turnThresh and the car is not in a turn going the other direction and the car has fully accelerated, set the boolean of the respective direction turn to true
+        if leftArea <= turnThresh and not rTurn and speed == targetS:
             lTurn = True
 
-        elif rightArea <= turnThresh and not lTurn:
+
+        elif rightArea <= turnThresh and not lTurn and speed == targetS:
             rTurn = True
+
 
         #if angle is different from previous angle
         if angle != prevAngle:
@@ -172,8 +174,11 @@ if __name__ == '__main__':
               elif rTurn: 
                   angle = min(angle, sharpRight)
 
-            #write angle to arduino to change servo
-            write(angle)      
+                #write angle to arduino to change servo
+              write(angle)
+            #if not in a turn write the angle and if the angle is over sharpLeft or sharpRight values it will be rounded down to those values
+            else:
+                write(max(min(angle, sharpLeft), sharpRight)) 
           
         #update previous area difference
         prevDiff = aDiff
@@ -185,7 +190,7 @@ if __name__ == '__main__':
 
         #display values
         print(leftArea, rightArea)
-        #print(t)
+        print(t)
         print(angle)
         print(prevAngle)
         
