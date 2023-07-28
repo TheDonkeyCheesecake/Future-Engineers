@@ -29,7 +29,6 @@ void loop(){
     else if(val > 2000 && val <= 2180)
     {
       servoMotor.write(val - 2000);
-      Serial.println(command);
     }   
     
   }
