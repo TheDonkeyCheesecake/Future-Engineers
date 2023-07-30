@@ -58,8 +58,8 @@ if __name__ == '__main__':
   
     t = 0 #number of turns car has completed
     
-    kp = 0.004 #value of proportional for proportional steering
-    kd = 0.004 #value of derivative for proportional and derivative sterrin
+    kp = 0.005 #value of proportional for proportional steering
+    kd = 0.005 #value of derivative for proportional and derivative sterrin
     
     straightConst = 98 #angle in which car goes straight
 
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1430 #variable for the speed of the car
+    speed = 1425 #variable for the speed of the car
     targetS = 1440 #value speed will reach for acceleration
     
     aDiff = 0 #value storing the difference of area between contours
@@ -81,9 +81,9 @@ if __name__ == '__main__':
     sleep(8) #delay 8 seconds for the servo to be ready
 
     #if button is pressed break out of loop and proceed with rest of program
-    while True:
-        if GPIO.input(5) == GPIO.LOW:
-            break
+    #while True:
+        #if GPIO.input(5) == GPIO.LOW:
+            #break
 
     #write initial values to car
     write(speed) 
@@ -115,8 +115,8 @@ if __name__ == '__main__':
         contours_right, hierarchy = cv2.findContours(imgThresh[ROI2[1]:ROI2[3], ROI2[0]:ROI2[2]], 
         cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         
-        contours, hierarchy = cv2.findContours(imgThresh, 
-        cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        #contours, hierarchy = cv2.findContours(imgThresh, 
+        #cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
         #iterate through every contour in both the left and right region of interest and take the largest one in each
         for cnt in contours_left:
@@ -130,7 +130,7 @@ if __name__ == '__main__':
             rightArea = max(area, rightArea)
 
         #draw all contours in full image
-        
+        """
         for i in range(len(contours)):
             cnt = contours[i]
             area = cv2.contourArea(cnt)
@@ -138,7 +138,7 @@ if __name__ == '__main__':
             cv2.drawContours(img, contours, i, (0, 255, 0), 2)
             approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
             x,y,w,h=cv2.boundingRect(approx)
-         
+        """
         #calculate difference of areas between the areas of the lanes
         aDiff = rightArea - leftArea
 
@@ -178,7 +178,8 @@ if __name__ == '__main__':
               write(angle)
             #if not in a turn write the angle and if the angle is over sharpLeft or sharpRight values it will be rounded down to those values
             else:
-                write(max(min(angle, sharpLeft), sharpRight)) 
+                write(max(min(angle, sharpLeft), sharpRight))
+                pass
           
         #update previous area difference
         prevDiff = aDiff
@@ -191,8 +192,8 @@ if __name__ == '__main__':
         #display values
         print(leftArea, rightArea)
         print(t)
-        print(angle)
-        print(prevAngle)
+        #print(angle)
+        #print(prevAngle)
         
         prevAngle = angle #update previous angle
         
