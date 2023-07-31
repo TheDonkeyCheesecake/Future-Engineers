@@ -22,7 +22,7 @@ void loop(){
     command[4] = '\0';
     int val = atoi(command); 
     
-    if(val <= 1500 && val >= 1420)
+    if(val <= 1500 && val >= 1350)
     {
       BLDCMotor.writeMicroseconds(val);
     }
