@@ -58,22 +58,21 @@ if __name__ == '__main__':
   
     t = 0 #number of turns car has completed
     
-    kp = 0.005 #value of proportional for proportional steering
-    kd = 0.005 #value of derivative for proportional and derivative sterrin
+    kp = 0.004 #value of proportional for proportional steering
+    kd = 0.004  #value of derivative for proportional and derivative sterrin
     
     straightConst = 98 #angle in which car goes straight
 
-    turnThresh = 250 #if area of a lane is under this threshold car goes into a turn
+    turnThresh = 200 #if area of a lane is under this threshold car goes into a turn
     exitThresh = 1500 #if area of both lanes is over this threshold car exits a turn
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
-    tDeviation = 25 #value used to calculate the how far left and right the car turns during a turn
+    tDeviation = 33 #value used to calculate the how far left and right the car turns during a turn
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1425 #variable for the speed of the car
-    targetS = 1440 #value speed will reach for acceleration
+    speed = 1415 #variable for the speed of the car
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -91,10 +90,6 @@ if __name__ == '__main__':
 
     #main loop
     while True:
-
-        #accelerate if not at target speed
-        if speed != targetS:
-            speed += 1
           
         #declare variables for the areas of the left and right contours
         rightArea, leftArea = 0, 0
@@ -145,12 +140,12 @@ if __name__ == '__main__':
         #calculate angle using PD steering
         angle = int(straightConst + aDiff * kp + (aDiff - prevDiff) * kd) + 2000
 
-        #if the area of either lane is less than or equal to turnThresh and the car is not in a turn going the other direction and the car has fully accelerated, set the boolean of the respective direction turn to true
-        if leftArea <= turnThresh and not rTurn and speed == targetS:
+        #if the area of either lane is less than or equal to turnThresh and the car is not in a turn going the other direction set the boolean of the respective direction turn to true
+        if leftArea <= turnThresh and not rTurn:
             lTurn = True
 
 
-        elif rightArea <= turnThresh and not lTurn and speed == targetS:
+        elif rightArea <= turnThresh and not lTurn:
             rTurn = True
 
 
@@ -179,13 +174,12 @@ if __name__ == '__main__':
             #if not in a turn write the angle and if the angle is over sharpLeft or sharpRight values it will be rounded down to those values
             else:
                 write(max(min(angle, sharpLeft), sharpRight))
-                pass
           
         #update previous area difference
         prevDiff = aDiff
             
-        #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is not still in the turn (does this by checking whether the angle is within 10 of straight)
-        if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 10) :
+        #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is not still in the turn (does this by checking whether the angle is within 15 of straight)
+        if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 15):
             stopCar() 
             break
 
