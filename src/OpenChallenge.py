@@ -49,17 +49,18 @@ if __name__ == '__main__':
 
     #lists storing coordinates for the regions of interest to find contours of the lanes
     # order: x1, y1, x2, y2
-    ROI1 = [55, 205, 315, 295]
-    ROI2 = [380, 185, 640, 255]
+    ROI1 = [45, 230, 315, 295]
+    ROI2 = [380, 205, 640, 255]
 
     #booleans for tracking whether car is in a left or right turn
     lTurn = False
     rTurn = False
   
     t = 0 #number of turns car has completed
+    i = 0 #counts the iterations of the main control loop 
     
-    kp = 0.004 #value of proportional for proportional steering
-    kd = 0.004  #value of derivative for proportional and derivative sterrin
+    kp = 0.005 #value of proportional for proportional steering
+    kd = 0.005  #value of derivative for proportional and derivative sterrin
     
     straightConst = 98 #angle in which car goes straight
 
@@ -72,7 +73,7 @@ if __name__ == '__main__':
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1415 #variable for the speed of the car
+    speed = 1425 #variable for the speed of the car
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -134,13 +135,15 @@ if __name__ == '__main__':
             approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
             x,y,w,h=cv2.boundingRect(approx)
         """
+        
+
         #calculate difference of areas between the areas of the lanes
         aDiff = rightArea - leftArea
 
         #calculate angle using PD steering
         angle = int(straightConst + aDiff * kp + (aDiff - prevDiff) * kd) + 2000
 
-        #if the area of either lane is less than or equal to turnThresh and the car is not in a turn going the other direction set the boolean of the respective direction turn to true
+        #if the area of either lane is less than or equal to turnThresh and the car is not in a turn going the other direction, set the boolean of the respective direction turn to true
         if leftArea <= turnThresh and not rTurn:
             lTurn = True
 
@@ -148,14 +151,18 @@ if __name__ == '__main__':
         elif rightArea <= turnThresh and not lTurn:
             rTurn = True
 
+        #if at the very start of the run, the car does a turn, remove a turn as the car is just adjusting to the center as it was placed to the side and is not in an actual turn
+        if i == 0 and (lTurn or rTurn):
+            t -= 1
+
 
         #if angle is different from previous angle
         if angle != prevAngle:
             #if car is in a left or right turn
             if lTurn or rTurn: 
 
-              #if area of both lanes exceed or equal exitThresh, meaning the turn is completed
-              if leftArea >= exitThresh and rightArea >= exitThresh: 
+              #if the area of the lane the car is turning towards is greater than or equal to exitThresh, the turn is completed and the booleans are set to false and the number of turns is increased by 1
+              if (rTurn and rightArea >= exitThresh) or (lTurn and leftArea >= exitThresh): 
                   #set turn variables to false as turn is over
                   lTurn = False 
                   rTurn = False
@@ -174,12 +181,13 @@ if __name__ == '__main__':
             #if not in a turn write the angle and if the angle is over sharpLeft or sharpRight values it will be rounded down to those values
             else:
                 write(max(min(angle, sharpLeft), sharpRight))
+                pass
           
         #update previous area difference
         prevDiff = aDiff
             
-        #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is not still in the turn (does this by checking whether the angle is within 15 of straight)
-        if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 15):
+        #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is not still in the turn (does this by checking whether the angle is within 10 of straight)
+        if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 15) :
             stopCar() 
             break
 
@@ -196,6 +204,9 @@ if __name__ == '__main__':
 
         #show image
         cv2.imshow("finalColor", img)
+
+        #increase the iterations by 1
+        i += 1
         
     #close all image windows
     cv2.destroyAllWindows()
