@@ -49,8 +49,8 @@ if __name__ == '__main__':
 
     #lists storing coordinates for the regions of interest to find contours of the lanes
     # order: x1, y1, x2, y2
-    ROI1 = [45, 230, 315, 295]
-    ROI2 = [380, 205, 640, 255]
+    ROI1 = [75, 215, 315, 305]
+    ROI2 = [380, 190, 610, 260]
 
     #booleans for tracking whether car is in a left or right turn
     lTurn = False
@@ -59,17 +59,17 @@ if __name__ == '__main__':
     t = 0 #number of turns car has completed
     i = 0 #counts the iterations of the main control loop 
     
-    kp = 0.005 #value of proportional for proportional steering
-    kd = 0.005  #value of derivative for proportional and derivative sterrin
+    kp = 0.004 #value of proportional for proportional steering
+    kd = 0.004  #value of derivative for proportional and derivative sterrin
     
     straightConst = 98 #angle in which car goes straight
 
-    turnThresh = 200 #if area of a lane is under this threshold car goes into a turn
-    exitThresh = 1500 #if area of both lanes is over this threshold car exits a turn
+    turnThresh = 50 #if area of a lane is under this threshold car goes into a turn
+    exitThresh = 1200 #if area of both lanes is over this threshold car exits a turn
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
-    tDeviation = 33 #value used to calculate the how far left and right the car turns during a turn
+    tDeviation = 25 #value used to calculate the how far left and right the car turns during a turn
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
@@ -102,7 +102,7 @@ if __name__ == '__main__':
         imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         #threshold image
-        ret, imgThresh = cv2.threshold(imgGray, 50, 255, cv2.THRESH_BINARY_INV)
+        ret, imgThresh = cv2.threshold(imgGray, 45, 255, cv2.THRESH_BINARY_INV)
 
         #find left and right contours of the lanes
         contours_left, hierarchy = cv2.findContours(imgThresh[ROI1[1]:ROI1[3], ROI1[0]:ROI1[2]], 
@@ -111,8 +111,8 @@ if __name__ == '__main__':
         contours_right, hierarchy = cv2.findContours(imgThresh[ROI2[1]:ROI2[3], ROI2[0]:ROI2[2]], 
         cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         
-        #contours, hierarchy = cv2.findContours(imgThresh, 
-        #cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contours, hierarchy = cv2.findContours(imgThresh, 
+        cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
         #iterate through every contour in both the left and right region of interest and take the largest one in each
         for cnt in contours_left:
@@ -126,7 +126,7 @@ if __name__ == '__main__':
             rightArea = max(area, rightArea)
 
         #draw all contours in full image
-        """
+        '''
         for i in range(len(contours)):
             cnt = contours[i]
             area = cv2.contourArea(cnt)
@@ -134,7 +134,7 @@ if __name__ == '__main__':
             cv2.drawContours(img, contours, i, (0, 255, 0), 2)
             approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
             x,y,w,h=cv2.boundingRect(approx)
-        """
+        '''
         
 
         #calculate difference of areas between the areas of the lanes
@@ -152,8 +152,8 @@ if __name__ == '__main__':
             rTurn = True
 
         #if at the very start of the run, the car does a turn, remove a turn as the car is just adjusting to the center as it was placed to the side and is not in an actual turn
-        if i == 0 and (lTurn or rTurn):
-            t -= 1
+        #if i == 0 and (lTurn or rTurn):
+           # t -= 1
 
 
         #if angle is different from previous angle
@@ -162,7 +162,7 @@ if __name__ == '__main__':
             if lTurn or rTurn: 
 
               #if the area of the lane the car is turning towards is greater than or equal to exitThresh, the turn is completed and the booleans are set to false and the number of turns is increased by 1
-              if (rTurn and rightArea >= exitThresh) or (lTurn and leftArea >= exitThresh): 
+              if (rightArea >= exitThresh and rTurn) or (leftArea >= exitThresh and lTurn): 
                   #set turn variables to false as turn is over
                   lTurn = False 
                   rTurn = False
@@ -192,18 +192,18 @@ if __name__ == '__main__':
             break
 
         #display values
-        print(leftArea, rightArea)
-        print(t)
+        #print(leftArea, rightArea)
+        #print(t)
         #print(angle)
         #print(prevAngle)
         
         prevAngle = angle #update previous angle
         
         #display regions of interest
-        displayROI(img, ROI1, ROI2)
+        #displayROI(img, ROI1, ROI2)
 
         #show image
-        cv2.imshow("finalColor", img)
+        #cv2.imshow("finalColor", img)
 
         #increase the iterations by 1
         i += 1
