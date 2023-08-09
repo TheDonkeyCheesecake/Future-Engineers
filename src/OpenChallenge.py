@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     #lists storing coordinates for the regions of interest to find contours of the lanes
     # order: x1, y1, x2, y2
-    ROI1 = [75, 215, 315, 305]
+    ROI1 = [65, 215, 315, 305]
     ROI2 = [380, 190, 610, 260]
 
     #booleans for tracking whether car is in a left or right turn
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     straightConst = 98 #angle in which car goes straight
 
     turnThresh = 50 #if area of a lane is under this threshold car goes into a turn
-    exitThresh = 1200 #if area of both lanes is over this threshold car exits a turn
+    exitThresh = 1000 #if area of both lanes is over this threshold car exits a turn
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
@@ -187,7 +187,7 @@ if __name__ == '__main__':
         prevDiff = aDiff
             
         #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is not still in the turn (does this by checking whether the angle is within 10 of straight)
-        if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 15) :
+        if cv2.waitKey(1)==ord('q') or (t == 12) :
             stopCar() 
             break
 
