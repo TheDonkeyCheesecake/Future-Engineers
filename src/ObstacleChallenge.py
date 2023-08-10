@@ -56,7 +56,7 @@ if __name__ == '__main__':
     picam2 = Picamera2()
     picam2.preview_configuration.main.size = (640,480)
     picam2.preview_configuration.main.format = "RGB888"
-    picam2.preview_configuration.controls.FrameRate = 60
+    picam2.preview_configuration.controls.FrameRate = 90
     picam2.preview_configuration.align()
     picam2.configure("preview")
     picam2.start()
@@ -71,27 +71,27 @@ if __name__ == '__main__':
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     
-    redTarget = 130
-    greenTarget = 510
+    redTarget = 150
+    greenTarget = 490
     
     turnDir = "none" 
     
     #lists storing coordinates for the regions of interest to find contours of the lanes
     # order: x1, y1, x2, y2
-    ROI1 = [45, 230, 320, 290]
-    ROI2 = [320, 205, 640, 255]
-    ROI3 = [redTarget, 150, greenTarget, 400]
-    ROI4 = [200, 250, 440, 400]
+    ROI1 = [25, 230, 310, 310]
+    ROI2 = [300, 185, 640, 275]
+    ROI3 = [redTarget - 30, 175, greenTarget + 30, 400]
+    ROI4 = [200, 350, 440, 400]
 
     #booleans for tracking whether car is in a left or right turn
     lTurn = False
     rTurn = False
   
-    kp = 0.005 #value of proportional for proportional steering
-    kd = 0.005  #value of derivative for proportional and derivative sterring
+    kp = 0.004 #value of proportional for proportional steering
+    kd = 0.004  #value of derivative for proportional and derivative sterring
 
-    cKp = 0.1
-    cKd = 0.1
+    cKp = 0.2
+    cKd = 0.2
     cy = 0.2
   
     straightConst = 98 #angle in which car goes straight
@@ -101,11 +101,12 @@ if __name__ == '__main__':
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
-    tDeviation = 30 #value used to calculate the how far left and right the car turns during a turn
+    tDeviation = 40 #value used to calculate the how far left and right the car turns during a turn
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1430 #variable for the speed of the car
+    speed = 1425 #variable for the speed of the car
+    targetS = 1435
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -133,6 +134,11 @@ if __name__ == '__main__':
 
     #main loop
     while True:
+        
+        if speed != targetS:
+            speed += 1
+            write(speed)
+            
 
         rightArea, leftArea = 0, 0
 
@@ -142,7 +148,7 @@ if __name__ == '__main__':
         imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         #threshold image
-        ret, imgThresh = cv2.threshold(imgGray, 45, 255, cv2.THRESH_BINARY_INV)
+        ret, imgThresh = cv2.threshold(imgGray, 65, 255, cv2.THRESH_BINARY_INV)
 
         #find left and right contours of the lanes
         contours_left, hierarchy = cv2.findContours(imgThresh[ROI1[1]:ROI1[3], ROI1[0]:ROI1[2]], 
@@ -166,8 +172,8 @@ if __name__ == '__main__':
         img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # Upper red mask (170-180)
-        lower_red = np.array([170, 150, 100])
-        upper_red = np.array([175, 255, 255])
+        lower_red = np.array([165, 150, 100])
+        upper_red = np.array([180, 255, 255])
         r_mask = cv2.inRange(img_hsv, lower_red, upper_red)
  
 
@@ -175,8 +181,8 @@ if __name__ == '__main__':
         cv2.CHAIN_APPROX_SIMPLE)[-2]# Find contours
 
         # green mask
-        lower_green = np.array([75, 100, 40])
-        upper_green = np.array([85, 255, 255])
+        lower_green = np.array([70, 100, 40])
+        upper_green = np.array([95, 255, 255])
 
         g_mask = cv2.inRange(img_hsv, lower_green, upper_green)
 
@@ -323,7 +329,7 @@ if __name__ == '__main__':
                 angle = sharpLeft
                 
             
-            write(angle)
+            write(max(min(angle, sharpLeft), sharpRight))
                 
 
             
@@ -342,5 +348,9 @@ if __name__ == '__main__':
         #show image
         cv2.imshow("finalColor", img)
         
+        print(leftArea, rightArea) 
+        
     #close all image windows
     cv2.destroyAllWindows()
+
+
