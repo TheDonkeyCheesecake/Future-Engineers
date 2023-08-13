@@ -4,6 +4,7 @@ from picamera2 import Picamera2
 import serial
 from time import sleep
 import RPi.GPIO as GPIO
+import numpy as np
 
 #function used to send signals to arduino to control speeds of the dc motor and the angle of the servo motor
 def write(value): 
@@ -50,7 +51,7 @@ if __name__ == '__main__':
     #lists storing coordinates for the regions of interest to find contours of the lanes
     # order: x1, y1, x2, y2
     ROI1 = [65, 215, 315, 305]
-    ROI2 = [380, 190, 610, 260]
+    ROI2 = [380, 190, 630, 270]
 
     #booleans for tracking whether car is in a left or right turn
     lTurn = False
@@ -73,7 +74,7 @@ if __name__ == '__main__':
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1425 #variable for the speed of the car
+    speed = 1430 #variable for the speed of the car
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -86,7 +87,7 @@ if __name__ == '__main__':
             #break
 
     #write initial values to car
-    write(speed) 
+    #write(speed) 
     write(angle)
 
     #main loop
@@ -100,9 +101,34 @@ if __name__ == '__main__':
 
         #convert image into grayscale
         imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
+        
+        # convert from BGR to HSV
+        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        
+        '''
         #threshold image
-        ret, imgThresh = cv2.threshold(imgGray, 45, 255, cv2.THRESH_BINARY_INV)
+        ret, imgThresh = cv2.threshold(imgGray, 50, 255, cv2.THRESH_BINARY_INV)
+        '''
+        
+        # black mask
+        lower_black = np.array([0, 0, 0])
+        upper_black = np.array([180, 255, 65])
+        
+        imgThresh = cv2.inRange(img_hsv, lower_black, upper_black)
+        
+        # blue mask
+        lower_blue = np.array([100, 24, 220])
+        upper_blue = np.array([155, 45, 255])
+
+        b_mask = cv2.inRange(img_hsv, lower_blue, upper_blue)
+        
+        hue_diff = np.abs(imgThresh[:, :, 0].astype(np.int32) - b_mask[:, :, 0].astype(np.int32))
+        saturation_diff = np.abs(imgThresh[:, :, 1] - b_mask[:, :, 1])
+        value_diff = np.abs(imgThresh[:, :, 2] - b_mask[:, :, 2])
+
+        imgThresh = cv2.merge((hue_diff, saturation_diff, value_diff))
+        
+
 
         #find left and right contours of the lanes
         contours_left, hierarchy = cv2.findContours(imgThresh[ROI1[1]:ROI1[3], ROI1[0]:ROI1[2]], 
@@ -126,7 +152,7 @@ if __name__ == '__main__':
             rightArea = max(area, rightArea)
 
         #draw all contours in full image
-        '''
+        
         for i in range(len(contours)):
             cnt = contours[i]
             area = cv2.contourArea(cnt)
@@ -134,7 +160,7 @@ if __name__ == '__main__':
             cv2.drawContours(img, contours, i, (0, 255, 0), 2)
             approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
             x,y,w,h=cv2.boundingRect(approx)
-        '''
+        
         
 
         #calculate difference of areas between the areas of the lanes
@@ -181,13 +207,12 @@ if __name__ == '__main__':
             #if not in a turn write the angle and if the angle is over sharpLeft or sharpRight values it will be rounded down to those values
             else:
                 write(max(min(angle, sharpLeft), sharpRight))
-                pass
           
         #update previous area difference
         prevDiff = aDiff
             
         #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is not still in the turn (does this by checking whether the angle is within 10 of straight)
-        if cv2.waitKey(1)==ord('q') or (t == 12) :
+        if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 15) :
             stopCar() 
             break
 
@@ -200,10 +225,10 @@ if __name__ == '__main__':
         prevAngle = angle #update previous angle
         
         #display regions of interest
-        #displayROI(img, ROI1, ROI2)
+        displayROI(img, ROI1, ROI2)
 
         #show image
-        #cv2.imshow("finalColor", img)
+        cv2.imshow("finalColor", img)
 
         #increase the iterations by 1
         i += 1
