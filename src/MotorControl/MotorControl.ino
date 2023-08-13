@@ -7,7 +7,7 @@ char command[5];
 
 void setup(){
   Serial.begin(115200);
-  servoMotor.attach(3);
+  servoMotor.attach(6);
   servoMotor.write(90);
   BLDCMotor.attach(5, 1000, 2000);
   BLDCMotor.writeMicroseconds(1500);
