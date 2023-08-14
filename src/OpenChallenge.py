@@ -11,7 +11,7 @@ def write(value):
     ser.write((str(value)).encode('utf-8'))
     print("signal sent:", value)
 
-#function which displays the Regions of Interest on the image
+#function which displays the  Regions of Interest on the image
 def displayROI(img, ROI1, ROI2):
     image = cv2.line(img, (ROI1[0], ROI1[1]), (ROI1[2], ROI1[1]), (0, 255, 255), 4)
     image = cv2.line(img, (ROI1[0], ROI1[1]), (ROI1[0], ROI1[3]), (0, 255, 255), 4)
@@ -50,8 +50,9 @@ if __name__ == '__main__':
 
     #lists storing coordinates for the regions of interest to find contours of the lanes
     # order: x1, y1, x2, y2
-    ROI1 = [65, 215, 315, 305]
+    ROI1 = [65, 225, 315, 305]
     ROI2 = [380, 190, 630, 270]
+    ROI3 = [200, 350, 440, 400]
 
     #booleans for tracking whether car is in a left or right turn
     lTurn = False
@@ -65,7 +66,7 @@ if __name__ == '__main__':
     
     straightConst = 98 #angle in which car goes straight
 
-    turnThresh = 50 #if area of a lane is under this threshold car goes into a turn
+    turnThresh = 100 #if area of a lane is under this threshold car goes into a turn
     exitThresh = 1000 #if area of both lanes is over this threshold car exits a turn
   
     angle = 2098 #variable for the current angle of the car
@@ -74,7 +75,7 @@ if __name__ == '__main__':
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1430 #variable for the speed of the car
+    speed = 1435 #variable for the speed of the car
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -82,13 +83,15 @@ if __name__ == '__main__':
     sleep(8) #delay 8 seconds for the servo to be ready
 
     #if button is pressed break out of loop and proceed with rest of program
-    #while True:
-        #if GPIO.input(5) == GPIO.LOW:
-            #break
+    while True:
+        if GPIO.input(5) == GPIO.LOW:
+            break
 
     #write initial values to car
-    #write(speed) 
+    write(speed) 
     write(angle)
+    
+    lDetected = False
 
     #main loop
     while True:
@@ -112,21 +115,25 @@ if __name__ == '__main__':
         
         # black mask
         lower_black = np.array([0, 0, 0])
-        upper_black = np.array([180, 255, 65])
+        upper_black = np.array([180, 255, 75])
         
         imgThresh = cv2.inRange(img_hsv, lower_black, upper_black)
         
-        # blue mask
-        lower_blue = np.array([100, 24, 220])
-        upper_blue = np.array([155, 45, 255])
+        # orange mask
+        lower_orange = np.array([0, 100, 20])
+        upper_orange = np.array([25, 255, 255])
 
-        b_mask = cv2.inRange(img_hsv, lower_blue, upper_blue)
+        o_mask = cv2.inRange(img_hsv, lower_orange, upper_orange)
+
+        contours_orange = cv2.findContours(o_mask[ROI4[1]:ROI4[3], ROI4[0]:ROI4[2]], cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE)[-2]# Find contours
+        #cv2.imshow("black", imgThresh)
         
-        hue_diff = np.abs(imgThresh[:, :, 0].astype(np.int32) - b_mask[:, :, 0].astype(np.int32))
-        saturation_diff = np.abs(imgThresh[:, :, 1] - b_mask[:, :, 1])
-        value_diff = np.abs(imgThresh[:, :, 2] - b_mask[:, :, 2])
+        #imgThresh = cv2.subtract(imgThresh, b_mask) 
+        
+        #cv2.imshow("blue", b_mask)
+        #cv2.imshow("subtracted", imgThresh) 
 
-        imgThresh = cv2.merge((hue_diff, saturation_diff, value_diff))
         
 
 
@@ -150,6 +157,15 @@ if __name__ == '__main__':
             area = cv2.contourArea(cnt)
 
             rightArea = max(area, rightArea)
+            
+         for i in range(len(contours_orange)):
+          cnt = contours_orange[i]
+          area = cv2.contourArea(cnt)
+          
+          #print(area)
+          if(area > 100):
+              lDetected = True
+              
 
         #draw all contours in full image
         
@@ -193,7 +209,10 @@ if __name__ == '__main__':
                   lTurn = False 
                   rTurn = False
                   #increase number of turns by 1
-                  t += 1
+                  
+                  if lDetected: 
+                      t += 1
+                      lDetected = False
 
               #if car is still in a left turn set the angle to the maximum of angle and sharpLeft
               elif lTurn:
@@ -225,10 +244,10 @@ if __name__ == '__main__':
         prevAngle = angle #update previous angle
         
         #display regions of interest
-        displayROI(img, ROI1, ROI2)
+        #displayROI(img, ROI1, ROI2)
 
         #show image
-        cv2.imshow("finalColor", img)
+        #cv2.imshow("finalColor", img)
 
         #increase the iterations by 1
         i += 1
