@@ -12,7 +12,7 @@ def write(value):
     print("signal sent:", value)
 
 #function which displays the regions of interest on the image
-def displayROI(img, ROI1, ROI2):
+def displayROI():
     image = cv2.line(img, (ROI1[0], ROI1[1]), (ROI1[2], ROI1[1]), (0, 255, 255), 4)
     image = cv2.line(img, (ROI1[0], ROI1[1]), (ROI1[0], ROI1[3]), (0, 255, 255), 4)
     image = cv2.line(img, (ROI1[2], ROI1[3]), (ROI1[2], ROI1[1]), (0, 255, 255), 4)
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     #lists storing coordinates for the regions of interest to find contours of the lanes and the orange line 
     # order: x1, y1, x2, y2
     ROI1 = [65, 225, 315, 305]
-    ROI2 = [380, 190, 630, 270]
+    ROI2 = [380, 190, 600, 270]
     ROI3 = [200, 350, 440, 400]
 
     #booleans for tracking whether car is in a left or right turn
@@ -71,11 +71,11 @@ if __name__ == '__main__':
     straightConst = 98 #angle in which car goes straight
 
     turnThresh = 100 #if area of a lane is under this threshold car goes into a turn
-    exitThresh = 1000 #if area of both lanes is over this threshold car exits a turn
+    exitThresh = 800 #if area of both lanes is over this threshold car exits a turn
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
-    tDeviation = 25 #value used to calculate the how far left and right the car turns during a turn
+    tDeviation = 23 #value used to calculate the how far left and right the car turns during a turn
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
@@ -87,9 +87,9 @@ if __name__ == '__main__':
     sleep(8) #delay 8 seconds for the servo to be ready
 
     #if button is pressed break out of loop and proceed with rest of program
-    while True:
-        if GPIO.input(5) == GPIO.LOW:
-            break
+    #while True:
+        #if GPIO.input(5) == GPIO.LOW:
+            #break
 
     #write initial values to car
     write(speed) 
@@ -133,11 +133,11 @@ if __name__ == '__main__':
         contours_right, hierarchy = cv2.findContours(imgThresh[ROI2[1]:ROI2[3], ROI2[0]:ROI2[2]], 
         cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
       
-        '''
+        
         #find all contours in image for debugging
-        contours, hierarchy = cv2.findContours(imgThresh, 
-        cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        '''
+        #contours, hierarchy = cv2.findContours(imgThresh, 
+        #cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        
 
         #iterate through every contour in both the left and right region of interest and take the largest one in each
         for cnt in contours_left:
@@ -222,11 +222,12 @@ if __name__ == '__main__':
         
         prevAngle = angle #update previous angle
         
+        print(leftArea, rightArea)
         #display regions of interest
-        #displayROI(img, ROI1, ROI2, ROI3)
+        displayROI()
 
         #show image
-        #cv2.imshow("finalColor", img)
+        cv2.imshow("finalColor", img)
         
     #close all image windows
     cv2.destroyAllWindows()
