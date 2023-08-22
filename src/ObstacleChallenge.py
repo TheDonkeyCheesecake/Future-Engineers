@@ -3,9 +3,9 @@ import cv2
 from picamera2 import Picamera2
 import serial
 from time import sleep
+import time
 import RPi.GPIO as GPIO
 import numpy as np
-
 
 #function used to send signals to arduino to control speeds of the dc motor and the angle of the servo motor
 def write(value): 
@@ -60,8 +60,8 @@ if __name__ == '__main__':
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     #set the target x coordinates for each red and green pillar
-    redTarget = 150
-    greenTarget = 490
+    redTarget = 30
+    greenTarget = 460
 
     #boolean storing the only direction the car is turning during the run
     turnDir = "none" 
@@ -84,14 +84,14 @@ if __name__ == '__main__':
     kp = 0.003 #value of proportional for proportional steering
     kd = 0.003  #value of derivative for proportional and derivative sterring
 
-    cKp = 0.2 #value of proportional for proportional steering for avoiding signal pillars
-    cKd = 0.2 #value of derivative for proportional and derivative sterring for avoiding signal pillars
-    cy = 0.2 #value used to affect pd steering based on how close the pillar is based on its y coordinate
+    cKp = 0.1 #value of proportional for proportional steering for avoiding signal pillars
+    cKd = 0.1 #value of derivative for proportional and derivative sterring for avoiding signal pillars
+    cy = 0.1 #value used to affect pd steering based on how close the pillar is based on its y coordinate
   
     straightConst = 98 #angle in which car goes straight
 
     turnThresh = 200 #if area of a lane is under this threshold car goes into a turn
-    exitThresh = 3000 #if area of both lanes is over this threshold car exits a turn
+    exitThresh = 1500 #if area of both lanes is over this threshold car exits a turn
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
@@ -99,8 +99,10 @@ if __name__ == '__main__':
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1430 #variable for initial speed of the car
+    speed = 1420 #variable for initial speed of the car
     targetS = 1440 #variable for final speed of the car
+    
+    slowedDown = False
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -113,28 +115,38 @@ if __name__ == '__main__':
     contY = 0 #stores y value of the current signal pillar
     
     t = 0 #tracks number of turns
-    i = 0 #tracks main loop iterations
+    mainIterations = 0 #tracks main loop iterations
     
     tSignal = False #boolean that makes sure that a pillar doesn't affect a turn too early
 
     sleep(8) #delay 8 seconds for the servo to be ready
 
     #if button is pressed break out of loop and proceed with rest of program
-    while True:
-        if GPIO.input(5) == GPIO.LOW:
-            break
+    #while True:
+       # if GPIO.input(5) == GPIO.LOW:
+           # break
 
     #write initial values to car
     write(speed) 
     write(angle)
+    
+    startTime = time.time()
 
     #main loop
     while True:
-
+        currentTime = time.time()
+        elapsedTime = currentTime - startTime
+        
+        if elapsedTime > 2.5 and slowedDown == False:
+            write(targetS)
+            slowedDown = True
+            
+        
+        #
         #deaccelerate car by 1 every 4 iterations
-        if speed != targetS and i % 4 == 0:
-            speed += 1
-            write(speed)
+        #if speed != targetS and mainIterations % 10 == 0:
+        #    speed += 1
+         #   write(speed)
             
         #reset rightArea, and leftArea variables
         rightArea, leftArea = 0, 0
@@ -170,7 +182,7 @@ if __name__ == '__main__':
         img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         #create red mask
-        lower_red = np.array([165, 150, 100])
+        lower_red = np.array([165, 150, 75])
         upper_red = np.array([180, 255, 255])
       
         r_mask = cv2.inRange(img_hsv, lower_red, upper_red)
@@ -200,7 +212,7 @@ if __name__ == '__main__':
         cv2.CHAIN_APPROX_SIMPLE)[-2]
         
         #create orange mask
-        lower_orange = np.array([0, 100, 20])
+        lower_orange = np.array([0, 100, 100])
         upper_orange = np.array([25, 255, 255])
 
         o_mask = cv2.inRange(img_hsv, lower_orange, upper_orange)
@@ -214,7 +226,7 @@ if __name__ == '__main__':
           cnt = contours_green[i]
           area = cv2.contourArea(cnt)
 
-          if(area > 80):
+          if(area > 50):
             
               #get width, height, and x and y coordinates by bounding rect
               approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
@@ -222,7 +234,7 @@ if __name__ == '__main__':
 
               #since the x and y coordinates are the coordinates just in the ROI, add to the x and y values to make it the proper coordinates on the overall image
               x += ROI3[0]
-              y += ROI3[1]
+              y += ROI3[1] + h
 
               #draw rectangle around signal pillar
               cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
@@ -238,7 +250,7 @@ if __name__ == '__main__':
           cnt = contours_red[i]
           area = cv2.contourArea(cnt)
 
-          if(area > 80):
+          if(area > 50):
             
               #get width, height, and x and y coordinates by bounding rect
               approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
@@ -246,10 +258,10 @@ if __name__ == '__main__':
 
               #since the x and y coordinates are the coordinates just in the ROI, add to the x and y values to make it the proper coordinates on the overall image
               x += ROI3[0]
-              y += ROI3[1]
+              y += ROI3[1] + h
 
               #draw rectangle around signal pillar
-              cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
+              cv2.rectangle(img,(x,y - h),(x+w,y),(0,0,255),2)
 
               #if the y value is bigger than the previous contY value update contY, contX, and cTarget since this means the current pillar is closer than the previous one
               if y > contY: 
@@ -272,6 +284,8 @@ if __name__ == '__main__':
               if turnDir == "right":
                   rTurn = True
                   tSignal = True
+            
+              print("Right") 
 
         #iterate through blue contours
         for i in range(len(contours_blue)):
@@ -288,6 +302,7 @@ if __name__ == '__main__':
                   lTurn = True
                   tSignal = True
               
+              print("Left") 
         #if cTarget is 0 meaning no pillar is detected
         if cTarget == 0:
 
@@ -365,9 +380,9 @@ if __name__ == '__main__':
         cv2.imshow("finalColor", img)
 
         #increase iterations
-        i += 1
+        mainIterations += 1
+        
+        print(leftArea, rightArea) 
 
     #close all image windows
     cv2.destroyAllWindows()
-
-
