@@ -45,7 +45,7 @@ if __name__ == '__main__':
     picam2 = Picamera2()
     picam2.preview_configuration.main.size = (640,480)
     picam2.preview_configuration.main.format = "RGB888"
-    picam2.preview_configuration.controls.FrameRate = 90
+    picam2.preview_configuration.controls.FrameRate = 30
     picam2.preview_configuration.align()
     picam2.configure("preview")
     picam2.start()
@@ -60,32 +60,32 @@ if __name__ == '__main__':
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     #set the target x coordinates for each red and green pillar
-    redTarget = 30
-    greenTarget = 460
+    redTarget = 200
+    greenTarget = 480
 
     #boolean storing the only direction the car is turning during the run
     turnDir = "none" 
     
-    #lists storing coordinates for the regions of interest to find contours of different areas
+    #lists storing coordinates forq the regions of interest to find contours of different areas
     #ROI1: for finding left lane
     #ROI2: for finding right lane
     #ROI3: for finding signal pillars
     #ROI4: for detecting blue and orange lines on mat
     # order: x1, y1, x2, y2
-    ROI1 = [25, 220, 260, 300]
-    ROI2 = [400, 185, 640, 275]
-    ROI3 = [redTarget - 30, 175, greenTarget + 30, 400]
-    ROI4 = [200, 350, 440, 400]
+    ROI1 = [25, 220, 330, 300]
+    ROI2 = [330, 185, 640, 275]
+    ROI3 = [redTarget - 50, 150, greenTarget + 50, 400]
+    ROI4 = [200, 330, 440, 400]
 
     #booleans for tracking whether car is in a left or right turn
     lTurn = False
     rTurn = False
   
-    kp = 0.003 #value of proportional for proportional steering
-    kd = 0.003  #value of derivative for proportional and derivative sterring
+    kp = 0.005 #value of proportional for proportional steering
+    kd = 0.005  #value of derivative for proportional and derivative sterring
 
     cKp = 0.1 #value of proportional for proportional steering for avoiding signal pillars
-    cKd = 0.1 #value of derivative for proportional and derivative sterring for avoiding signal pillars
+    cKd = 0.0 #value of derivative for proportional and derivative sterring for avoiding signal pillars
     cy = 0.1 #value used to affect pd steering based on how close the pillar is based on its y coordinate
   
     straightConst = 98 #angle in which car goes straight
@@ -95,11 +95,11 @@ if __name__ == '__main__':
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
-    tDeviation = 40 #value used to calculate the how far left and right the car turns during a turn
+    tDeviation = 60 #value used to calculate the how far left and right the car turns during a turn
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1420 #variable for initial speed of the car
+    speed = 1410 #variable for initial speed of the car
     targetS = 1440 #variable for final speed of the car
     
     slowedDown = False
@@ -127,7 +127,7 @@ if __name__ == '__main__':
            # break
 
     #write initial values to car
-    write(speed) 
+    #write(speed) 
     write(angle)
     
     startTime = time.time()
@@ -137,8 +137,8 @@ if __name__ == '__main__':
         currentTime = time.time()
         elapsedTime = currentTime - startTime
         
-        if elapsedTime > 2.5 and slowedDown == False:
-            write(targetS)
+        if elapsedTime > 1 and slowedDown == False:
+            #write(targetS)
             slowedDown = True
             
         
@@ -226,7 +226,7 @@ if __name__ == '__main__':
           cnt = contours_green[i]
           area = cv2.contourArea(cnt)
 
-          if(area > 50):
+          if(area > 100):
             
               #get width, height, and x and y coordinates by bounding rect
               approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
@@ -237,7 +237,7 @@ if __name__ == '__main__':
               y += ROI3[1] + h
 
               #draw rectangle around signal pillar
-              cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
+              cv2.rectangle(img,(x,y - h),(x+w,y),(0,0,255),2)
 
               #if the y value is bigger than the previous contY value update contY, contX, and cTarget since this means the current pillar is closer than the previous one
               if y > contY: 
@@ -250,7 +250,7 @@ if __name__ == '__main__':
           cnt = contours_red[i]
           area = cv2.contourArea(cnt)
 
-          if(area > 50):
+          if(area > 100):
             
               #get width, height, and x and y coordinates by bounding rect
               approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
@@ -310,10 +310,12 @@ if __name__ == '__main__':
             aDiff = rightArea - leftArea
 
             #calculate angle using PD steering
-            angle = int(straightConst + aDiff * kp + (aDiff - prevDiff) * kd) + 2000
+            angle = max(2000, int(straightConst + aDiff * kp + (aDiff - prevDiff) * kd) + 2000)
 
             #update the previous difference
             prevDiff = aDiff
+            
+            print("lane", angle)
 
             #if car has done 12 turns (3 laps) exit main loop and stop the car
             if t == 12:
@@ -321,10 +323,10 @@ if __name__ == '__main__':
                 break
         #if pillar is detected
         else:
-
             #if car is in a turn and tSignal is false meaning no orange or blue line is detected currently, end the turn and add 1 count to t
             if (lTurn or rTurn) and not tSignal:
-
+                prevError = 0
+                prevDiff = 0
                 lTurn = False
                 rTurn = False
                 t += 1
@@ -333,7 +335,17 @@ if __name__ == '__main__':
             error = cTarget - contX
 
             #calculate new angle using PD steering along with the cy value
-            angle = int(straightConst + error * cKp + (error - prevError) * cKd + cy * (contY - ROI3[1])) + 2000
+            angle = int(straightConst + error * cKp + (error - prevError) * cKd) + 2000
+            
+            if error <= 0:
+                angle -= int(cy * (contY - ROI3[1]))  
+            else:
+                angle += int(cy * (contY - ROI3[1]))
+            
+            angle = max(2000, angle)
+            
+            print("pillar", angle)
+                
 
             #reset variables for next iteration 
             prevError = error
@@ -361,6 +373,7 @@ if __name__ == '__main__':
             #if in a left turn set the angle to sharpLeft
             elif lTurn:
                 angle = sharpLeft
+                
                 
             #write the angle which is kept in the bounds of sharpLeft and sharpRight
             write(max(min(angle, sharpLeft), sharpRight))
