@@ -1,7 +1,7 @@
 # Engineers Documentation
 
 Repository containing the engineering elements and details of Team XXXXXX from Canada, participating in the 2023 WRO Future Engineers competition.
-===
+***
 ## Repository Content
 
 - `chassis` - details of our robot chassis
@@ -12,7 +12,7 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 - `v-photos` - photos of our robot from each angle
 - `video` - YouTube link of our robot running each program on the game field
 - `others` - other essential files
-===
+***
 ## Team Members
 
 - Brian Yin, 16, [brianyin256@gmail.com](mailto:brianyin256@gmail.com)
@@ -20,9 +20,9 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 - Weston Law, 15, [westonlaw@hotmail.com](mailto:westonlaw@hotmail.com)
 
 ![Team Members](image-link.png)
-===
+***
 ## Hardware List and Assembly
-===
+***
 ### Parts List
 
 - [LaTrax Rally RC Car Chassis](https://latrax.com/products/rally)
@@ -39,9 +39,9 @@ Our 3D printed parts weigh roughly 40 grams, which is around 2 dollars of filame
 ![3D Printed Parts](image-link.png)
 
 Total Cost: `$182.84` + `$57.99` + `$229.99` + `$13.36` + `$39.99` + `$32.99` + `$13.40` + `$14.49` + `$2` respectively = `$587.05` and `$663.37` with tax. (prices in CAD)
-===
+***
 ### Assembly
-===
+***
 #### Mobility
 
 We used a prebuilt RC car chassis and made modifications to integrate the rest of our components onto the body of the car, including a new DC motor, a 3D printed platform, and circuit boards (all parts can be found in Parts List above). In addition, the receiver that allows the car to be controlled remotely was removed, as it was unnecessary and took up space.
@@ -57,7 +57,7 @@ The motors are controlled by the Arduino UNO R3 board, placed on top of the plat
 To connect all the components together, we use a custom-designed perfboard. The Arduino uses two PWM (Pulse Width Modulation) ports to control the speed of the two motors and an additional port to ground the circuit. The motors use 3 ports/wires each for power, signal, and ground.
 
 The DC motor is wired to and receives power directly from the ESC (which is connected to the battery), but the servo motor receives it from a BEC (Battery Eliminator Circuit) inside the ESC, which is designed to provide a regulated and constant voltage supply to power low-power electronics, such as the servo motor.
-===
+***
 #### Power and Sensing
 
 Beside the Arduino Board is the Vemico Raspberry Pi 4 Board, along with a fan for cooling and a SanDisk 64GB Ultra microSD Card to hold our programs. Wired and mounted on top of it is the PiSugar Module Platform Attachment, which also is fed power from the PiSugar S Pro 5000 mAh Lithium Battery. The battery provides 3.7V, which is then converted to 5V using a voltage regulator to meet the operating voltage requirement of the Raspberry Pi.
@@ -75,21 +75,21 @@ A DPST switch controls the power of the Raspberry Pi and Arduino to satisfy the 
 
 #### Schematic
 ![Schematic](image-link.png)
-===
+***
 ## Initialization and Connection Process
 
 Our Raspberry Pi setup involves downloading the Raspberry Pi OS, writing it to a microSD card using Raspberry Pi Imager ([Download Here](https://www.raspberrypi.com/software/)), and configuring SSH and Wi-Fi. After inserting the SD card, powering up the Pi, and identifying its IP address on the network, we can remotely access it via PuTTY ([Download Here](https://www.putty.org)) for SSH and VNC Viewer ([Download Here](https://www.realvnc.com/en/connect/download/viewer/)) for remote desktop control.
-===
+***
 ## Program Arrangement and Software Elements
 
 Our SBC (Single Board Computer) is the Vemico Raspberry Pi 4 Board, which operates on Raspberry Pi OS. Our SBM (Single Board Microcontroller) is the Arduino UNO R3 Controller Board. Put simply, the Arduino controls the movement, and the Raspberry Pi handles the algorithms.
 
 We use Python for the Raspberry Pi code and a variant of C++ designed for Arduino for the Arduino code.
-===
+***
 ### Image Processing
-===
+***
 #### Libraries in use:
-===
+***
 - OpenCV (for computer vision)
 - picamera2 (for camera control)
 - serial (for serial communication)
@@ -99,17 +99,17 @@ We use Python for the Raspberry Pi code and a variant of C++ designed for Arduin
 The camera captures an image which is first converted from BGR (color) to grayscale using OpenCV. Binary thresholding is applied to create a binary image, which emphasizes the lanes by setting pixel values to black for areas of interest (walls) and white (other). The script detects the contours of the left and right lanes using the thresholded binary image. The contours are extracted within specific regions of interest (ROIs) defined earlier in the code.
 
 The following algorithms are only used in the obstacle challenge, which requires slightly more camera vision. A key difference between these programs is the use of HSV (hue, saturation, and vibrance, a method of color representation similar to RGB) to detect color rather than using grayscale
-===
+***
 ##### Signal Pillar Detection
-===
+***
 The program detects the contours of signal pillars (red and green) using color masks based on their respective HSV color ranges. The contours are then extracted within a specified ROI for obstacles.
-===
+***
 ##### Corner Detection
-===
+***
 Similar to the signal pillar detection, the program detects the blue and orange lines using HSV color ranges and uses this to turn. Since the obstacle challenge requires the robot to turn very frequently, using the same method of turning as the open challenge (mentioned in the next topic) is very inconsistent.
-===
+***
 ### Open Challenge
-===
+***
 Fundamentally, the Open Challenge only has two parts to it; wall steering and turning 90 degrees.
 
 Our wall steering program utilizes our camera to differentiate between the black walls and everything else. However, we don't actually look at the entire camera feed and rather only focus on two specific areas, which are ROIs as mentioned earlier. These two regions of interest were distinctively chosen so that when the robot is placed in the center of the track, they will have a similar amount of black pixels from the wall. This way, we know we are on track when the two ROIs have similar amounts.
@@ -121,7 +121,7 @@ The second part, turning is pretty simple. When we detect that one ROI has signi
 To keep track of our laps, we count each time the turning program is run, up until 12 (4 corners x 3 laps), and stop the robot. We also check to see if our camera actually sees an orange line while turning, to ensure that we are at the corner.
 
 [Link to Video](https://www.youtube.com/watch?v=yourvideo)
-===
+***
 ### Obstacle Challenge
 
 The obstacle challenge brings the addition of one more segment of code; obstacle avoidance, along with a change in the turning algorithm.
@@ -133,7 +133,7 @@ In order to turn back to the middle of the track, we wait until the obstacle nea
 We changed the turning method in this challenge because the previous one had difficulty working consistently with the number of other turns we do to avoid the obstacles in this challenge. When the robot is on an angle, usually while turning, the previous method can trigger when it isn't supposed to.
 
 [Link to Video](https://www.youtube.com/watch?v=yourvideo)
-===
+***
 
 
 
