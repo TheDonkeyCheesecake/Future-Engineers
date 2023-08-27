@@ -89,27 +89,27 @@ We use Python for the Raspberry Pi code and a variant of C++ designed for Arduin
 ### Image Processing
 
 #### Libraries in use:
-***
-- OpenCV (for computer vision)
-- picamera2 (for camera control)
-- serial (for serial communication)
-- RPi.GPIO (for GPIO control on the Raspberry Pi)
-- numpy (for numerical operations)
+
+- `OpenCV` (for computer vision)
+- `picamera2` (for camera control)
+- `serial` (for serial communication)
+- `RPi.GPIO` (for GPIO control on the Raspberry Pi)
+- `numpy` (for numerical operations)
 
 The camera captures an image which is first converted from BGR (color) to grayscale using OpenCV. Binary thresholding is applied to create a binary image, which emphasizes the lanes by setting pixel values to black for areas of interest (walls) and white (other). The script detects the contours of the left and right lanes using the thresholded binary image. The contours are extracted within specific regions of interest (ROIs) defined earlier in the code.
 
 The following algorithms are only used in the obstacle challenge, which requires slightly more camera vision. A key difference between these programs is the use of HSV (hue, saturation, and vibrance, a method of color representation similar to RGB) to detect color rather than using grayscale
 ***
 #### Signal Pillar Detection
-***
+
 The program detects the contours of signal pillars (red and green) using color masks based on their respective HSV color ranges. The contours are then extracted within a specified ROI for obstacles.
 ***
 #### Corner Detection
-***
+
 Similar to the signal pillar detection, the program detects the blue and orange lines using HSV color ranges and uses this to turn. Since the obstacle challenge requires the robot to turn very frequently, using the same method of turning as the open challenge (mentioned in the next topic) is very inconsistent.
 ***
 ### Open Challenge
-***
+
 Fundamentally, the Open Challenge only has two parts to it; wall steering and turning 90 degrees.
 
 Our wall steering program utilizes our camera to differentiate between the black walls and everything else. However, we don't actually look at the entire camera feed and rather only focus on two specific areas, which are ROIs as mentioned earlier. These two regions of interest were distinctively chosen so that when the robot is placed in the center of the track, they will have a similar amount of black pixels from the wall. This way, we know we are on track when the two ROIs have similar amounts.
