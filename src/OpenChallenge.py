@@ -56,7 +56,7 @@ if __name__ == '__main__':
     #lists storing coordinates for the regions of interest to find contours of the lanes and the orange line 
     # order: x1, y1, x2, y2
     ROI1 = [65, 225, 315, 305]
-    ROI2 = [380, 190, 600, 270]
+    ROI2 = [380, 200, 620, 280]
     ROI3 = [200, 350, 440, 400]
 
     #booleans for tracking whether car is in a left or right turn
@@ -65,21 +65,21 @@ if __name__ == '__main__':
   
     t = 0 #number of turns car has completed
     
-    kp = 0.004 #value of proportional for proportional steering
-    kd = 0.004 #value of derivative for proportional and derivative sterring
+    kp = 0.0035 #value of proportional for proportional steering
+    kd = 0.0035 #value of derivative for proportional and derivative sterring
     
     straightConst = 98 #angle in which car goes straight
 
-    turnThresh = 100 #if area of a lane is under this threshold car goes into a turn
+    turnThresh = 75 #if area of a lane is under this threshold car goes into a turn
     exitThresh = 800 #if area of both lanes is over this threshold car exits a turn
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
-    tDeviation = 23 #value used to calculate the how far left and right the car turns during a turn
+    tDeviation = 25 #value used to calculate the how far left and right the car turns during a turn
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1435 #variable for the speed of the car
+    speed = 1440 #variable for the speed of the car
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     write(speed) 
     write(angle)
 
-    #boolean tracking when the orange line on the mat is detected
+    #boolean trackingz when the orange line on the mat is detected
     lDetected = False
 
     #main loop
@@ -112,7 +112,7 @@ if __name__ == '__main__':
         
         # black mask
         lower_black = np.array([0, 0, 0])
-        upper_black = np.array([180, 255, 75])
+        upper_black = np.array([180, 255, 70])
         
         imgThresh = cv2.inRange(img_hsv, lower_black, upper_black)
         
@@ -124,7 +124,21 @@ if __name__ == '__main__':
 
         #find contours to detect orange line
         contours_orange = cv2.findContours(o_mask[ROI3[1]:ROI3[3], ROI3[0]:ROI3[2]], cv2.RETR_EXTERNAL,
-        cv2.CHAIN_APPROX_SIMPLE)[-2] 
+        cv2.CHAIN_APPROX_SIMPLE)[-2]
+        
+        #create blue mask
+        lower_blue = np.array([100, 100, 50])
+        upper_blue = np.array([135, 255, 225])
+
+        b_mask = cv2.inRange(img_hsv, lower_blue, upper_blue)
+
+        #find blue contours to detect the lines on the mat
+        bCont1 = cv2.findContours(b_mask[ROI1[1]:ROI1[3], ROI1[0]:ROI1[2]], cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE)[-2]
+        
+        bCont2 = cv2.findContours(b_mask[ROI2[1]:ROI2[3], ROI2[0]:ROI2[2]], cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE)[-2]
+        
 
         #find left and right contours of the lanes
         contours_left, hierarchy = cv2.findContours(imgThresh[ROI1[1]:ROI1[3], ROI1[0]:ROI1[2]], 
@@ -135,8 +149,8 @@ if __name__ == '__main__':
       
         
         #find all contours in image for debugging
-        #contours, hierarchy = cv2.findContours(imgThresh, 
-        #cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contours, hierarchy = cv2.findContours(imgThresh, 
+        cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         
 
         #iterate through every contour in both the left and right region of interest and take the largest one in each
@@ -149,6 +163,24 @@ if __name__ == '__main__':
             area = cv2.contourArea(cnt)
 
             rightArea = max(area, rightArea)
+            
+        bArea = 0
+        
+        for cnt in bCont1:
+            bArea += cv2.contourArea(cnt)
+        
+        ##leftArea = max(0, leftArea - bArea) 
+        print("left blue:", bArea, end = " ") 
+        
+        bArea = 0
+
+        for cnt in bCont2:
+            bArea += cv2.contourArea(cnt)
+        
+        #rightArea = max(0, rightArea - bArea) 
+        print("right blue:", bArea) 
+            
+        
 
         #iterate through the contours in the centre region of interest to find the orange line
         for i in range(len(contours_orange)):
@@ -158,8 +190,10 @@ if __name__ == '__main__':
             #if contour is detected set lDetected to true
             if(area > 100):
                 lDetected = True
+                #rTurn = True
+                print("detected")
                 
-        '''
+        
         #draw all contours in full image
         for i in range(len(contours)):
             cnt = contours[i]
@@ -168,13 +202,13 @@ if __name__ == '__main__':
             cv2.drawContours(img, contours, i, (0, 255, 0), 2)
             approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
             x,y,w,h=cv2.boundingRect(approx)
-        '''
+        
         
         #calculate difference of areas between the areas of the lanes
         aDiff = rightArea - leftArea
 
         #calculate angle using PD steering
-        angle = int(straightConst + aDiff * kp + (aDiff - prevDiff) * kd) + 2000
+        angle = int(max(straightConst + aDiff * kp + (aDiff - prevDiff) * kd + 2000, 2001)) 
 
         #if the area of either lane is less than or equal to turnThresh and the car is not in a turn going the other direction, set the boolean of the respective direction turn to true
         if leftArea <= turnThresh and not rTurn:
@@ -189,10 +223,12 @@ if __name__ == '__main__':
             if lTurn or rTurn: 
 
               #if the area of the lane the car is turning towards is greater than or equal to exitThresh, the turn is completed and the booleans are set to false and the number of turns is increased by 1
-              if (rightArea >= exitThresh and rTurn) or (leftArea >= exitThresh and lTurn): 
+              if (rightArea > exitThresh and rTurn) or (leftArea > exitThresh and lTurn): 
                   #set turn variables to false as turn is over
                   lTurn = False 
                   rTurn = False
+                  
+                  prevDiff = 0 
                   
                   #increase number of turns by 1 only if the orange line has been detected 
                   if lDetected: 
@@ -216,7 +252,8 @@ if __name__ == '__main__':
         prevDiff = aDiff
             
         #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is not still in the turn (does this by checking whether the angle is within 10 of straight)
-        if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 10) :
+        if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 15):
+            sleep(0.25)
             stopCar() 
             break
         
@@ -228,6 +265,10 @@ if __name__ == '__main__':
 
         #show image
         cv2.imshow("finalColor", img)
+        
+        #show image
+        cv2.imshow("blue", b_mask)
+        
         
     #close all image windows
     cv2.destroyAllWindows()
