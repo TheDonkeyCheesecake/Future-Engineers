@@ -18,7 +18,7 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 
 |   -Team Members-   |
 
- - Brian Yin, 16, brianyin256@gmail.com, racist, registered pedophile, crippling gambling addiction, alcoholic, clinically insane, depressed, suicidal, kinky, transgender, mentally demented, anorexic, obese, diabetic, overweight, jacked, pansexual (Likes pans), pansexual, pan, homophobic, diabetic, 
+ - Brian Yin, 16, brianyin256@gmail.com
  - Eric Rao, 15, ericrao08@gmail.com
  - Weston Law, 15, westonlaw@hotmail.com 
 
