@@ -60,13 +60,13 @@ if __name__ == '__main__':
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     #set the target x coordinates for each red and green pillar
-    redTarget = 200
+    redTarget = 180
     greenTarget = 480
 
     #boolean storing the only direction the car is turning during the run
     turnDir = "none" 
     
-    #lists storing coordinates forq the regions of interest to find contours of different areas
+    #lists storing coordinates for the regions of interest to find contours of different areas
     #ROI1: for finding left lane
     #ROI2: for finding right lane
     #ROI3: for finding signal pillars
@@ -74,8 +74,8 @@ if __name__ == '__main__':
     # order: x1, y1, x2, y2
     ROI1 = [25, 220, 330, 300]
     ROI2 = [330, 185, 640, 275]
-    ROI3 = [redTarget - 50, 150, greenTarget + 50, 400]
-    ROI4 = [200, 330, 440, 400]
+    ROI3 = [redTarget - 60, 150, greenTarget + 60, 400]
+    ROI4 = [200, 350, 440, 400]
 
     #booleans for tracking whether car is in a left or right turn
     lTurn = False
@@ -99,8 +99,9 @@ if __name__ == '__main__':
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1410 #variable for initial speed of the car
+    speed = 1425 #variable for initial speed of the car
     targetS = 1440 #variable for final speed of the car
+    s = 0.5
     
     slowedDown = False
     
@@ -137,10 +138,9 @@ if __name__ == '__main__':
         currentTime = time.time()
         elapsedTime = currentTime - startTime
         
-        if elapsedTime > 1 and slowedDown == False:
+        if elapsedTime > 2 and slowedDown == False:
             #write(targetS)
             slowedDown = True
-            
         
         #
         #deaccelerate car by 1 every 4 iterations
@@ -212,10 +212,12 @@ if __name__ == '__main__':
         cv2.CHAIN_APPROX_SIMPLE)[-2]
         
         #create orange mask
-        lower_orange = np.array([0, 100, 100])
+        lower_orange = np.array([0, 100, 175])
         upper_orange = np.array([25, 255, 255])
 
         o_mask = cv2.inRange(img_hsv, lower_orange, upper_orange)
+        
+        cv2.imshow("orange", o_mask)
 
         #find orange contours to detect the lines on the mat
         contours_orange = cv2.findContours(o_mask[ROI4[1]:ROI4[3], ROI4[0]:ROI4[2]], cv2.RETR_EXTERNAL,
@@ -282,10 +284,14 @@ if __name__ == '__main__':
 
               #if the turn direction is right set rTurn and tSignal to true to indicate a turn
               if turnDir == "right":
+                  if t == 12:
+                      stopCar()
+                      exit()
+                      
+                  print("right")
                   rTurn = True
                   tSignal = True
-            
-              print("Right") 
+
 
         #iterate through blue contours
         for i in range(len(contours_blue)):
@@ -299,10 +305,15 @@ if __name__ == '__main__':
             
               #if the turn direction is left set lTurn and tSignal to true to indicate a turn
               if turnDir == "left":
+                  if t == 12:
+                      stopCar()
+                      exit()
+                      break
+                    
+                  print("Left")
                   lTurn = True
                   tSignal = True
-              
-              print("Left") 
+                  
         #if cTarget is 0 meaning no pillar is detected
         if cTarget == 0:
 
@@ -314,13 +325,12 @@ if __name__ == '__main__':
 
             #update the previous difference
             prevDiff = aDiff
-            
-            print("lane", angle)
-
+            '''
             #if car has done 12 turns (3 laps) exit main loop and stop the car
             if t == 12:
                 stopCar()
                 break
+            '''
         #if pillar is detected
         else:
             #if car is in a turn and tSignal is false meaning no orange or blue line is detected currently, end the turn and add 1 count to t
@@ -330,6 +340,13 @@ if __name__ == '__main__':
                 lTurn = False
                 rTurn = False
                 t += 1
+                
+                if t == 12:
+                    ROI4[1] = 200
+                
+                print("saw pillar")
+            
+            
 
             #calculate error based on the difference between the target x coordinate and the pillar's current x coordinate
             error = cTarget - contX
@@ -343,8 +360,6 @@ if __name__ == '__main__':
                 angle += int(cy * (contY - ROI3[1]))
             
             angle = max(2000, angle)
-            
-            print("pillar", angle)
                 
 
             #reset variables for next iteration 
@@ -365,6 +380,8 @@ if __name__ == '__main__':
               
                   #increase number of turns by 1
                   t += 1
+                  
+                  print("exitThresh")
 
             #if in a right turn set the angle to sharpRight
             if rTurn:
@@ -377,6 +394,8 @@ if __name__ == '__main__':
                 
             #write the angle which is kept in the bounds of sharpLeft and sharpRight
             write(max(min(angle, sharpLeft), sharpRight))
+            #write(int(speed - abs(straightConst + 2000 - angle) * s))
+            #print("speed: ", int(speed - abs(straightConst + 2000 - angle) * s))
                 
         #if q is pressed break out of main loop and stop the car
         if cv2.waitKey(1)==ord('q'):
@@ -395,7 +414,7 @@ if __name__ == '__main__':
         #increase iterations
         mainIterations += 1
         
-        print(leftArea, rightArea) 
+        print(t)
 
     #close all image windows
     cv2.destroyAllWindows()
