@@ -22,7 +22,7 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 ![Team Members](image-link.png)
 ***
 ## Hardware List and Assembly
-***
+
 ### Parts List
 
 - [LaTrax Rally RC Car Chassis](https://latrax.com/products/rally)
@@ -41,7 +41,7 @@ Our 3D printed parts weigh roughly 40 grams, which is around 2 dollars of filame
 Total Cost: `$182.84` + `$57.99` + `$229.99` + `$13.36` + `$39.99` + `$32.99` + `$13.40` + `$14.49` + `$2` respectively = `$587.05` and `$663.37` with tax. (prices in CAD)
 ***
 ### Assembly
-***
+
 #### Mobility
 
 We used a prebuilt RC car chassis and made modifications to integrate the rest of our components onto the body of the car, including a new DC motor, a 3D printed platform, and circuit boards (all parts can be found in Parts List above). In addition, the receiver that allows the car to be controlled remotely was removed, as it was unnecessary and took up space.
@@ -87,7 +87,7 @@ Our SBC (Single Board Computer) is the Vemico Raspberry Pi 4 Board, which operat
 We use Python for the Raspberry Pi code and a variant of C++ designed for Arduino for the Arduino code.
 ***
 ### Image Processing
-***
+
 #### Libraries in use:
 ***
 - OpenCV (for computer vision)
@@ -100,11 +100,11 @@ The camera captures an image which is first converted from BGR (color) to graysc
 
 The following algorithms are only used in the obstacle challenge, which requires slightly more camera vision. A key difference between these programs is the use of HSV (hue, saturation, and vibrance, a method of color representation similar to RGB) to detect color rather than using grayscale
 ***
-##### Signal Pillar Detection
+#### Signal Pillar Detection
 ***
 The program detects the contours of signal pillars (red and green) using color masks based on their respective HSV color ranges. The contours are then extracted within a specified ROI for obstacles.
 ***
-##### Corner Detection
+#### Corner Detection
 ***
 Similar to the signal pillar detection, the program detects the blue and orange lines using HSV color ranges and uses this to turn. Since the obstacle challenge requires the robot to turn very frequently, using the same method of turning as the open challenge (mentioned in the next topic) is very inconsistent.
 ***
