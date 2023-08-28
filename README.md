@@ -31,6 +31,7 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 - [SanDisk 64GB Ultra microSD Card](https://www.amazon.ca/gp/product/B073JYVKNX/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&th=1)
 - [PiSugar S Pro 5000 mAh Lithium Battery + PiSugar Module Platform Attachment](https://www.amazon.ca/Portable-Platform-Raspberry-Accessories-handhold/dp/B097RCFHD2)
 - [GoolRC 2435 Brushless Motor + 25A ESC](https://www.amazon.ca/gp/product/B01CCRZHNI/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
+- [Hosim 1600mAh Li-Polymer Battery](https://www.amazon.ca/gp/product/B098QSLJKV/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [LoveRPi Wide Angle Camera + CSI Cable](https://www.amazon.ca/gp/product/B07KF6QVPY/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [DKARDU DPST Switch](https://www.amazon.ca/gp/product/B09TKMR8J4/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 
@@ -38,7 +39,7 @@ Our 3D printed parts weigh roughly 40 grams, which is around 2 dollars of filame
 
 ![3D Printed Parts](image-link.png)
 
-Total Cost: `$182.84` + `$57.99` + `$229.99` + `$13.36` + `$39.99` + `$32.99` + `$13.40` + `$14.49` + `$2` respectively = `$587.05` and `$663.37` with tax. (prices in CAD)
+Total Cost: `$182.84` + `$57.99` + `$229.99` + `$13.36` + `$39.99` + `$32.99` + `$39.99` + `$13.40` + `$14.49` + `$2` respectively = `$627.04` and `$708.56` with tax. (prices in CAD)
 ***
 ### Assembly
 
@@ -50,7 +51,7 @@ The robot moves through two different motors; a DC motor for driving and a servo
 
 We chose this motor because there are various YouTube videos of it being implemented on our exact RC car chassis. It is also a similar size to the original motor, making it easier to replace. The new motor is also a brushless motor, as compared to the original which is a brushed motor. Brushless motors work similarly to brushed motors using the same principles of magnetic attraction/repulsion but don't have the "brushes" that would normally cause friction and reduce the motor's efficiency.
 
-The other component under the platform is the ESC (electronic speed controller), which is wired to and controls the speed of the newly added DC motor. It is also connected to the 1600mAh battery, placed right next to it, supplying a sufficient 7.4V.
+The other component under the platform is the ESC (electronic speed controller), which is wired to and controls the speed of the newly added DC motor. It is also connected to the Hosim 1600mAh Li-Polymer Battery, placed right next to it, supplying a sufficient 7.4V.
 
 The motors are controlled by the Arduino UNO R3 board, placed on top of the platform using standoffs.
 
