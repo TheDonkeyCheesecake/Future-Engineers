@@ -13,7 +13,7 @@ def write(value):
     print("signal sent:", value)
 
 #function which displays the Regions of Interest on the image
-def displayROI(img, ROI1, ROI2, ROI3, ROI4):
+def displayROI():
     image = cv2.line(img, (ROI1[0], ROI1[1]), (ROI1[2], ROI1[1]), (0, 255, 255), 4)
     image = cv2.line(img, (ROI1[0], ROI1[1]), (ROI1[0], ROI1[3]), (0, 255, 255), 4)
     image = cv2.line(img, (ROI1[2], ROI1[3]), (ROI1[2], ROI1[1]), (0, 255, 255), 4)
@@ -38,6 +38,7 @@ def displayROI(img, ROI1, ROI2, ROI3, ROI4):
 def stopCar():
     write(2098)
     write(1500)
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
 
@@ -89,8 +90,6 @@ if __name__ == '__main__':
     cy = 0.2 #value used to affect pd steering based on how close the pillar is based on its y coordinate
   
     straightConst = 98 #angle in which car goes straight
-
-    turnThresh = 200 #if area of a lane is under this threshold car goes into a turn
     exitThresh = 1500 #if area of both lanes is over this threshold car exits a turn
   
     angle = 2098 #variable for the current angle of the car
@@ -100,10 +99,6 @@ if __name__ == '__main__':
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
     speed = 1435 #variable for initial speed of the car
-    targetS = 1440 #variable for final speed of the car
-    s = 0.3
-    
-    slowedDown = False
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -116,38 +111,23 @@ if __name__ == '__main__':
     contY = 0 #stores y value of the current signal pillar
     
     t = 0 #tracks number of turns
-    mainIterations = 0 #tracks main loop iterations
     
     tSignal = False #boolean that makes sure that a pillar doesn't affect a turn too early
 
     sleep(8) #delay 8 seconds for the servo to be ready
 
     #if button is pressed break out of loop and proceed with rest of program
-    #while True:
-       # if GPIO.input(5) == GPIO.LOW:
-           # break
+    while True:
+        if GPIO.input(5) == GPIO.LOW:
+            break
 
     #write initial values to car
     write(speed) 
     write(angle)
-    
-    startTime = time.time()
 
     #main loop
     while True:
-        currentTime = time.time()
-        elapsedTime = currentTime - startTime
         
-        if elapsedTime > 2 and slowedDown == False:
-            #write(targetS)
-            slowedDown = True
-        
-        #
-        #deaccelerate car by 1 every 4 iterations
-        #if speed != targetS and mainIterations % 10 == 0:
-        #    speed += 1
-         #   write(speed)
-            
         #reset rightArea, and leftArea variables
         rightArea, leftArea = 0, 0
 
@@ -216,8 +196,6 @@ if __name__ == '__main__':
         upper_orange = np.array([25, 255, 255])
 
         o_mask = cv2.inRange(img_hsv, lower_orange, upper_orange)
-        
-        cv2.imshow("orange", o_mask)
 
         #find orange contours to detect the lines on the mat
         contours_orange = cv2.findContours(o_mask[ROI4[1]:ROI4[3], ROI4[0]:ROI4[2]], cv2.RETR_EXTERNAL,
@@ -228,7 +206,7 @@ if __name__ == '__main__':
           cnt = contours_green[i]
           area = cv2.contourArea(cnt)
 
-          if(area > 100):
+          if area > 100:
             
               #get width, height, and x and y coordinates by bounding rect
               approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
@@ -252,7 +230,7 @@ if __name__ == '__main__':
           cnt = contours_red[i]
           area = cv2.contourArea(cnt)
 
-          if(area > 100):
+          if area > 100:
             
               #get width, height, and x and y coordinates by bounding rect
               approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
@@ -276,7 +254,7 @@ if __name__ == '__main__':
           cnt = contours_orange[i]
           area = cv2.contourArea(cnt)
           
-          if(area > 100):
+          if area > 100:
 
               #if the turn direction hasn't been changed yet change the turn direction to right
               if turnDir == "none":
@@ -284,39 +262,38 @@ if __name__ == '__main__':
 
               #if the turn direction is right set rTurn and tSignal to true to indicate a turn
               if turnDir == "right":
+
+                  #if car has finished 3 laps and has detected an orange line stop the car
                   if t == 12:
                       stopCar()
                       exit()
-                      
-                  print("right")
+                  
                   rTurn = True
                   tSignal = True
-
 
         #iterate through blue contours
         for i in range(len(contours_blue)):
           cnt = contours_blue[i]
           area = cv2.contourArea(cnt)
 
-          if(area > 100):
+          if area > 100:
               #if the turn direction hasn't been changed yet change the turn direction to left
               if turnDir == "none":
                   turnDir = "left" 
             
               #if the turn direction is left set lTurn and tSignal to true to indicate a turn
               if turnDir == "left":
+
+                  #if car has finished 3 laps and has detected a blue line stop the car
                   if t == 12:
                       stopCar()
                       exit()
-                      break
                     
-                  print("Left")
                   lTurn = True
                   tSignal = True
                   
         #if cTarget is 0 meaning no pillar is detected
         if cTarget == 0:
-            #write(speed)
 
             #calculate the difference in the left and right lane areas
             aDiff = rightArea - leftArea
@@ -326,44 +303,43 @@ if __name__ == '__main__':
 
             #update the previous difference
             prevDiff = aDiff
-            '''
-            #if car has done 12 turns (3 laps) exit main loop and stop the car
-            if t == 12:
-                stopCar()
-                break
-            '''
+
         #if pillar is detected
         else:
-            #write(targetS)
-            #if car is in a turn and tSignal is false meaning no orange or blue line is detected currently, end the turn and add 1 count to t
+          
+            #if car is in a turn and tSignal is false meaning no orange or blue line is detected currently, end the turn
             if (lTurn or rTurn) and not tSignal:
+
+                #reset prevError and prevDiff 
                 prevError = 0
                 prevDiff = 0
+
+                #reset lTurn and rTurn booleans to indicate the turn is over
                 lTurn = False
                 rTurn = False
+
+                #add a turn
                 t += 1
-                
+
+                #if the car has finished 3 laps extend the fourth ROI to see the orange and blue lines earlier in order to stop earlier
                 if t == 12:
                     ROI4[1] = 200
-                
-                print("saw pillar")
             
-            
-
             #calculate error based on the difference between the target x coordinate and the pillar's current x coordinate
             error = cTarget - contX
 
-            #calculate new angle using PD steering along with the cy value
+            #calculate new angle using PD steering
             angle = int(straightConst + error * cKp + (error - prevError) * cKd) + 2000
-            
+
+            #adjust the angle further based on cy value
             if error <= 0:
                 angle -= int(cy * (contY - ROI3[1]))  
             else:
                 angle += int(cy * (contY - ROI3[1]))
-            
+
+            #make sure angle value is over 2000 
             angle = max(2000, angle)
                 
-
             #reset variables for next iteration 
             prevError = error
             contY = 0
@@ -382,8 +358,6 @@ if __name__ == '__main__':
               
                   #increase number of turns by 1
                   t += 1
-                  
-                  print("exitThresh")
 
             #if in a right turn set the angle to sharpRight
             if rTurn:
@@ -393,11 +367,8 @@ if __name__ == '__main__':
             elif lTurn:
                 angle = sharpLeft
                 
-                
             #write the angle which is kept in the bounds of sharpLeft and sharpRight
             write(max(min(angle, sharpLeft), sharpRight))
-            #write(int(speed - abs(straightConst + 2000 - angle) * s))
-            #print("speed: ", int(speed - abs(straightConst + 2000 - angle) * s))
                 
         #if q is pressed break out of main loop and stop the car
         if cv2.waitKey(1)==ord('q'):
@@ -408,15 +379,9 @@ if __name__ == '__main__':
         tSignal = False #reset tSignal
         
         #display regions of interest
-        displayROI(img, ROI1, ROI2, ROI3, ROI4)
+        displayROI()
 
         #show image
         cv2.imshow("finalColor", img)
-
-        #increase iterations
-        mainIterations += 1
         
         print(t)
-
-    #close all image windows
-    cv2.destroyAllWindows()
