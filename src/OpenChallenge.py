@@ -87,15 +87,15 @@ if __name__ == '__main__':
     sleep(8) #delay 8 seconds for the servo to be ready
 
     #if button is pressed break out of loop and proceed with rest of program
-    #while True:
-        #if GPIO.input(5) == GPIO.LOW:
-            #break
+    while True:
+        if GPIO.input(5) == GPIO.LOW:
+            break
 
     #write initial values to car
     write(speed) 
     write(angle)
 
-    #boolean trackingz when the orange line on the mat is detected
+    #boolean tracking whether the orange line on the mat is detected
     lDetected = False
 
     #main loop
@@ -126,20 +126,6 @@ if __name__ == '__main__':
         contours_orange = cv2.findContours(o_mask[ROI3[1]:ROI3[3], ROI3[0]:ROI3[2]], cv2.RETR_EXTERNAL,
         cv2.CHAIN_APPROX_SIMPLE)[-2]
         
-        #create blue mask
-        lower_blue = np.array([100, 100, 50])
-        upper_blue = np.array([135, 255, 225])
-
-        b_mask = cv2.inRange(img_hsv, lower_blue, upper_blue)
-
-        #find blue contours to detect the lines on the mat
-        bCont1 = cv2.findContours(b_mask[ROI1[1]:ROI1[3], ROI1[0]:ROI1[2]], cv2.RETR_EXTERNAL,
-        cv2.CHAIN_APPROX_SIMPLE)[-2]
-        
-        bCont2 = cv2.findContours(b_mask[ROI2[1]:ROI2[3], ROI2[0]:ROI2[2]], cv2.RETR_EXTERNAL,
-        cv2.CHAIN_APPROX_SIMPLE)[-2]
-        
-
         #find left and right contours of the lanes
         contours_left, hierarchy = cv2.findContours(imgThresh[ROI1[1]:ROI1[3], ROI1[0]:ROI1[2]], 
         cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -147,12 +133,10 @@ if __name__ == '__main__':
         contours_right, hierarchy = cv2.findContours(imgThresh[ROI2[1]:ROI2[3], ROI2[0]:ROI2[2]], 
         cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
       
-        
         #find all contours in image for debugging
         contours, hierarchy = cv2.findContours(imgThresh, 
         cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         
-
         #iterate through every contour in both the left and right region of interest and take the largest one in each
         for cnt in contours_left:
             area = cv2.contourArea(cnt)
@@ -163,24 +147,6 @@ if __name__ == '__main__':
             area = cv2.contourArea(cnt)
 
             rightArea = max(area, rightArea)
-            
-        bArea = 0
-        
-        for cnt in bCont1:
-            bArea += cv2.contourArea(cnt)
-        
-        ##leftArea = max(0, leftArea - bArea) 
-        print("left blue:", bArea, end = " ") 
-        
-        bArea = 0
-
-        for cnt in bCont2:
-            bArea += cv2.contourArea(cnt)
-        
-        #rightArea = max(0, rightArea - bArea) 
-        print("right blue:", bArea) 
-            
-        
 
         #iterate through the contours in the centre region of interest to find the orange line
         for i in range(len(contours_orange)):
@@ -190,10 +156,8 @@ if __name__ == '__main__':
             #if contour is detected set lDetected to true
             if(area > 100):
                 lDetected = True
-                #rTurn = True
                 print("detected")
                 
-        
         #draw all contours in full image
         for i in range(len(contours)):
             cnt = contours[i]
@@ -202,7 +166,6 @@ if __name__ == '__main__':
             cv2.drawContours(img, contours, i, (0, 255, 0), 2)
             approx=cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
             x,y,w,h=cv2.boundingRect(approx)
-        
         
         #calculate difference of areas between the areas of the lanes
         aDiff = rightArea - leftArea
@@ -227,7 +190,8 @@ if __name__ == '__main__':
                   #set turn variables to false as turn is over
                   lTurn = False 
                   rTurn = False
-                  
+
+                  #reset prevDiff
                   prevDiff = 0 
                   
                   #increase number of turns by 1 only if the orange line has been detected 
@@ -251,24 +215,21 @@ if __name__ == '__main__':
         #update previous area difference
         prevDiff = aDiff
             
-        #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is not still in the turn (does this by checking whether the angle is within 10 of straight)
+        #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is mostly straight (within 15 degrees)
         if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 15):
             sleep(0.25)
             stopCar() 
             break
         
         prevAngle = angle #update previous angle
-        
+
         print(leftArea, rightArea)
+      
         #display regions of interest
         displayROI()
 
         #show image
         cv2.imshow("finalColor", img)
-        
-        #show image
-        cv2.imshow("blue", b_mask)
-        
-        
+              
     #close all image windows
     cv2.destroyAllWindows()
