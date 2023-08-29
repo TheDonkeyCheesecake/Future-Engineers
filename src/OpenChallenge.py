@@ -154,9 +154,8 @@ if __name__ == '__main__':
             area = cv2.contourArea(cnt)
             
             #if contour is detected set lDetected to true
-            if(area > 100):
+            if area > 100:
                 lDetected = True
-                print("detected")
                 
         #draw all contours in full image
         for i in range(len(contours)):
@@ -222,8 +221,6 @@ if __name__ == '__main__':
             break
         
         prevAngle = angle #update previous angle
-
-        print(leftArea, rightArea)
       
         #display regions of interest
         displayROI()
