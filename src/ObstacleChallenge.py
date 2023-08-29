@@ -60,8 +60,8 @@ if __name__ == '__main__':
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     #set the target x coordinates for each red and green pillar
-    redTarget = 180
-    greenTarget = 480
+    redTarget = 120
+    greenTarget = 560
 
     #boolean storing the only direction the car is turning during the run
     turnDir = "none" 
@@ -72,21 +72,21 @@ if __name__ == '__main__':
     #ROI3: for finding signal pillars
     #ROI4: for detecting blue and orange lines on mat
     # order: x1, y1, x2, y2
-    ROI1 = [25, 220, 330, 300]
-    ROI2 = [330, 185, 640, 275]
-    ROI3 = [redTarget - 60, 150, greenTarget + 60, 400]
+    ROI1 = [25, 210, 330, 300]
+    ROI2 = [330, 165, 640, 285]
+    ROI3 = [redTarget - 30, 200, greenTarget + 60, 400]
     ROI4 = [200, 350, 440, 400]
 
     #booleans for tracking whether car is in a left or right turn
     lTurn = False
     rTurn = False
   
-    kp = 0.005 #value of proportional for proportional steering
-    kd = 0.005  #value of derivative for proportional and derivative sterring
+    kp = 0.01 #value of proportional for proportional steering
+    kd = 0.01  #value of derivative for proportional and derivative sterring
 
-    cKp = 0.1 #value of proportional for proportional steering for avoiding signal pillars
+    cKp = 0.2 #value of proportional for proportional steering for avoiding signal pillars
     cKd = 0.0 #value of derivative for proportional and derivative sterring for avoiding signal pillars
-    cy = 0.1 #value used to affect pd steering based on how close the pillar is based on its y coordinate
+    cy = 0.2 #value used to affect pd steering based on how close the pillar is based on its y coordinate
   
     straightConst = 98 #angle in which car goes straight
 
@@ -95,13 +95,13 @@ if __name__ == '__main__':
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
-    tDeviation = 60 #value used to calculate the how far left and right the car turns during a turn
+    tDeviation = 50 #value used to calculate the how far left and right the car turns during a turn
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1425 #variable for initial speed of the car
+    speed = 1435 #variable for initial speed of the car
     targetS = 1440 #variable for final speed of the car
-    s = 0.5
+    s = 0.3
     
     slowedDown = False
     
@@ -128,7 +128,7 @@ if __name__ == '__main__':
            # break
 
     #write initial values to car
-    #write(speed) 
+    write(speed) 
     write(angle)
     
     startTime = time.time()
@@ -182,7 +182,7 @@ if __name__ == '__main__':
         img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         #create red mask
-        lower_red = np.array([165, 150, 75])
+        lower_red = np.array([165, 175, 75])
         upper_red = np.array([180, 255, 255])
       
         r_mask = cv2.inRange(img_hsv, lower_red, upper_red)
@@ -192,7 +192,7 @@ if __name__ == '__main__':
         cv2.CHAIN_APPROX_SIMPLE)[-2]
 
         #create green mask
-        lower_green = np.array([70, 100, 40])
+        lower_green = np.array([60, 80, 40])
         upper_green = np.array([95, 255, 255])
 
         g_mask = cv2.inRange(img_hsv, lower_green, upper_green)
@@ -316,6 +316,7 @@ if __name__ == '__main__':
                   
         #if cTarget is 0 meaning no pillar is detected
         if cTarget == 0:
+            #write(speed)
 
             #calculate the difference in the left and right lane areas
             aDiff = rightArea - leftArea
@@ -333,6 +334,7 @@ if __name__ == '__main__':
             '''
         #if pillar is detected
         else:
+            #write(targetS)
             #if car is in a turn and tSignal is false meaning no orange or blue line is detected currently, end the turn and add 1 count to t
             if (lTurn or rTurn) and not tSignal:
                 prevError = 0
