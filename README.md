@@ -15,9 +15,10 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 ***
 ## Team Members
 
+- Weston Law, 15, [westonlaw@hotmail.com](mailto:westonlaw@hotmail.com)
 - Brian Yin, 16, [brianyin256@gmail.com](mailto:brianyin256@gmail.com)
 - Eric Rao, 15, [ericrao08@gmail.com](mailto:ericrao08@gmail.com)
-- Weston Law, 15, [westonlaw@hotmail.com](mailto:westonlaw@hotmail.com)
+
 
 ![Team Members](https://github.com/TheDonkeyCheesecake/Future-Engineers/blob/main/t-photos/Official.jpg)
 ***
