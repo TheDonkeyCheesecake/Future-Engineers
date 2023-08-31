@@ -19,7 +19,7 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 - Eric Rao, 15, [ericrao08@gmail.com](mailto:ericrao08@gmail.com)
 - Weston Law, 15, [westonlaw@hotmail.com](mailto:westonlaw@hotmail.com)
 
-![Team Members](image-link.png)
+![Team Members](https://github.com/TheDonkeyCheesecake/Future-Engineers/blob/main/t-photos/Official.jpg)
 ***
 ## Hardware List and Assembly
 
