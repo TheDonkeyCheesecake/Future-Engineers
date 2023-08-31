@@ -36,7 +36,7 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 - [DKARDU DPST Switch](https://www.amazon.ca/gp/product/B09TKMR8J4/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [Kallaudo 90 Degree USB Printer Cable](https://www.amazon.ca/dp/B0C39V3J9T?ref=ppx_yo2ov_dt_b_product_details&th=1)
 
-Our 3D printed parts weigh roughly 40 grams, which is around 2 dollars of filament cost. They consist of a platform and camera mount, printed by a Bambu Lab P1P 3D printer.
+Our 3D-printed parts weigh roughly 75 grams, which is around $2.50 worth of filament. They consist of a platform and pieces to create a camera mount, printed by a Bambu Lab P1P 3D printer.
 
 ![3D Printed Parts](image-link.png)
 
