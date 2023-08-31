@@ -30,17 +30,17 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 - [Vemico Raspberry Pi 4 Board + Fan](https://www.amazon.ca/gp/product/B09WXRCYL4/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [SanDisk 64GB Ultra microSD Card](https://www.amazon.ca/gp/product/B073JYVKNX/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&th=1)
 - [PiSugar S Pro 5000 mAh Lithium Battery + PiSugar Module Platform Attachment](https://www.amazon.ca/Portable-Platform-Raspberry-Accessories-handhold/dp/B097RCFHD2)
+- [GOOLSKY 2435 3300KV Brushless Motor and 25A ESC](https://www.amazon.ca/dp/B0BTH3ZRDH?psc=1&ref=ppx_yo2ov_dt_b_product_details)
 - [Hosim 1600mAh Li-Polymer Battery](https://www.amazon.ca/gp/product/B098QSLJKV/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [LoveRPi Wide Angle Camera + CSI Cable](https://www.amazon.ca/gp/product/B07KF6QVPY/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [DKARDU DPST Switch](https://www.amazon.ca/gp/product/B09TKMR8J4/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [Kallaudo 90 Degree USB Printer Cable](https://www.amazon.ca/dp/B0C39V3J9T?ref=ppx_yo2ov_dt_b_product_details&th=1)
-- [GOOLSKY 2435 3300KV Brushless Motor and 25A ESC](https://www.amazon.ca/dp/B0BTH3ZRDH?psc=1&ref=ppx_yo2ov_dt_b_product_details)
 
 Our 3D printed parts weigh roughly 40 grams, which is around 2 dollars of filament cost. They consist of a platform and camera mount, printed by a Bambu Lab P1P 3D printer.
 
 ![3D Printed Parts](image-link.png)
 
-Total Cost: `$182.84` + `$57.99` + `$229.99` + `$13.36` + `$39.99` + `$32.99` + `$39.99` + `$13.40` + `$14.49` + `$2` respectively = `$627.04` and `$708.56` with tax. (prices in CAD)
+Total Cost: `$182.84` + `$57.99` + `$229.99` + `$13.36` + `$39.99` + `$39.99` + `$39.99` + `$13.40` + `$14.49` + `$2` respectively = `$634.04` and `$716.47` with tax. (prices in CAD)
 ***
 ### Assembly
 
