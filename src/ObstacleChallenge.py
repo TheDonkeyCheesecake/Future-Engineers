@@ -3,7 +3,6 @@ import cv2
 from picamera2 import Picamera2
 import serial
 from time import sleep
-import time
 import RPi.GPIO as GPIO
 import numpy as np
 
@@ -36,6 +35,7 @@ def displayROI():
 
 #function to bring the car to a stop
 def stopCar():
+    sleep(2)
     write(2098)
     write(1500)
     cv2.destroyAllWindows()
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     picam2 = Picamera2()
     picam2.preview_configuration.main.size = (640,480)
     picam2.preview_configuration.main.format = "RGB888"
-    picam2.preview_configuration.controls.FrameRate = 30
+    picam2.preview_configuration.controls.FrameRate = 60
     picam2.preview_configuration.align()
     picam2.configure("preview")
     picam2.start()
@@ -54,15 +54,21 @@ if __name__ == '__main__':
     #initialize serial port
     ser = serial.Serial('/dev/ttyACM0', 115200, timeout = 1) 
     ser.flush()
-  
+
     #initialize GPIO pins for button
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     #set the target x coordinates for each red and green pillar
-    redTarget = 120
-    greenTarget = 560
+    redTarget = 160
+    greenTarget = 500
+
+    #variable that keeps track of the target of the last pillar the car has passed
+    lastTarget = 0
+
+    #boolean that is used for when the car has to turn around to the opposite direction so the car can complete the last lap the other way around
+    reverse = False
 
     #boolean storing the only direction the car is turning during the run
     turnDir = "none" 
@@ -75,19 +81,19 @@ if __name__ == '__main__':
     # order: x1, y1, x2, y2
     ROI1 = [25, 210, 330, 300]
     ROI2 = [330, 165, 640, 285]
-    ROI3 = [redTarget - 30, 200, greenTarget + 60, 400]
+    ROI3 = [redTarget - 60, 200, greenTarget + 60, 400]
     ROI4 = [200, 350, 440, 400]
 
     #booleans for tracking whether car is in a left or right turn
     lTurn = False
     rTurn = False
   
-    kp = 0.01 #value of proportional for proportional steering
-    kd = 0.01  #value of derivative for proportional and derivative sterring
+    kp = 0.0075 #value of proportional for proportional steering
+    kd = 0.0075  #value of derivative for proportional and derivative sterring
 
     cKp = 0.2 #value of proportional for proportional steering for avoiding signal pillars
-    cKd = 0.0 #value of derivative for proportional and derivative sterring for avoiding signal pillars
-    cy = 0.2 #value used to affect pd steering based on how close the pillar is based on its y coordinate
+    cKd = 0.2 #value of derivative for proportional and derivative sterring for avoiding signal pillars
+    cy = 0.12 #value used to affect pd steering based on how close the pillar is based on its y coordinate
   
     straightConst = 98 #angle in which car goes straight
     exitThresh = 1500 #if area of both lanes is over this threshold car exits a turn
@@ -98,7 +104,9 @@ if __name__ == '__main__':
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1435 #variable for initial speed of the car
+    speed = 1441 #variable for initial speed of the car
+    tSpeed = 1439 #variable for speed of the car during turn to opposite direction
+    reverseSpeed = 1600 #variable for speed of the car going backwards
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -115,19 +123,20 @@ if __name__ == '__main__':
     tSignal = False #boolean that makes sure that a pillar doesn't affect a turn too early
 
     sleep(8) #delay 8 seconds for the servo to be ready
-
+    '''
     #if button is pressed break out of loop and proceed with rest of program
     while True:
         if GPIO.input(5) == GPIO.LOW:
             break
-
+    '''
+    
     #write initial values to car
     write(speed) 
     write(angle)
 
     #main loop
     while True:
-        
+            
         #reset rightArea, and leftArea variables
         rightArea, leftArea = 0, 0
 
@@ -260,16 +269,19 @@ if __name__ == '__main__':
               if turnDir == "none":
                   turnDir = "right"
 
-              #if the turn direction is right set rTurn and tSignal to true to indicate a turn
+              #if the turn direction is right
               if turnDir == "right":
 
-                  #if car has finished 3 laps and has detected an orange line stop the car
-                  if t == 12:
-                      stopCar()
-                      exit()
-                  
-                  rTurn = True
-                  tSignal = True
+                  #if the last pillar we passed is red and we have already completed 7 turns meaning this is the 8th turn 
+                  if lastTarget == redTarget and t == 7:
+
+                      reverse = True #set reverse to true so the car turns and reverses its direction
+                      turnDir = "left" #change the turn direction as we are heading in the opposite direction
+                  else:
+
+                      #set tTurn and tSignal to true to indicate a right turn
+                      rTurn = True
+                      tSignal = True                  
 
         #iterate through blue contours
         for i in range(len(contours_blue)):
@@ -281,16 +293,19 @@ if __name__ == '__main__':
               if turnDir == "none":
                   turnDir = "left" 
             
-              #if the turn direction is left set lTurn and tSignal to true to indicate a turn
+              #if the turn direction is left
               if turnDir == "left":
 
-                  #if car has finished 3 laps and has detected a blue line stop the car
-                  if t == 12:
-                      stopCar()
-                      exit()
+                  #if the last pillar we passed is red and we have already completed 7 turns meaning this is the 8th turn 
+                  if lastTarget == redTarget and t == 7:
                     
-                  lTurn = True
-                  tSignal = True
+                      reverse = True #set reverse to true so the car turns and reverses its direction
+                      turnDir = "right" #change the turn direction as we are heading in the opposite direction
+                  else:
+
+                      #set tTurn and tSignal to true to indicate a left turn
+                      lTurn = True
+                      tSignal = True 
                   
         #if cTarget is 0 meaning no pillar is detected
         if cTarget == 0:
@@ -303,6 +318,21 @@ if __name__ == '__main__':
 
             #update the previous difference
             prevDiff = aDiff
+
+            #if the areas of the two walls are above a threshold meaning we are facing the wall and are also close to the wall
+            if leftArea > 5000 and rightArea > 5000:
+
+                #if the last pillar the car passed was green take a hard right turn and if the last pillar was red take a hard left turn
+                if lastTarget == greenTarget:
+                    angle = sharpRight
+                elif lastTarget == redTarget:
+                    angle = sharpLeft
+
+            #if the car has finished 12 turns end the program
+            elif t == 12:
+                stopCar()
+                break
+            
 
         #if pillar is detected
         else:
@@ -320,10 +350,6 @@ if __name__ == '__main__':
 
                 #add a turn
                 t += 1
-
-                #if the car has finished 3 laps extend the fourth ROI to see the orange and blue lines earlier in order to stop earlier
-                if t == 12:
-                    ROI4[1] = 200
             
             #calculate error based on the difference between the target x coordinate and the pillar's current x coordinate
             error = cTarget - contX
@@ -331,11 +357,17 @@ if __name__ == '__main__':
             #calculate new angle using PD steering
             angle = int(straightConst + error * cKp + (error - prevError) * cKd) + 2000
 
-            #adjust the angle further based on cy value
+            #adjust the angle further based on cy value, if error is 
             if error <= 0:
                 angle -= int(cy * (contY - ROI3[1]))  
             else:
                 angle += int(cy * (contY - ROI3[1]))
+
+            #if the cTarget is equal to greenTarget or redTarget meaning we have a green pillar or a redPillar and the pillar has already exceeded its x target and is also close to the bottom of the ROI, set LastTarget to the respective target as we have basically passed the pillar. 
+            if cTarget == greenTarget and contX > greenTarget and contY > ROI3[1] + 150:
+                lastTarget = greenTarget
+            elif cTarget == redTarget and contX < redTarget and contY > ROI3[1] + 150:
+                lastTarget = redTarget
 
             #make sure angle value is over 2000 
             angle = max(2000, angle)
@@ -346,8 +378,30 @@ if __name__ == '__main__':
             contX = 0
             cTarget = 0
 
+        #if the car needs to turn around to the opposite direction
+        if reverse:
+
+            #code to implement a three point turn
+            write(tSpeed)
+            write(2098 + 50)
+            sleep(2)
+            write(1500)
+            sleep(1)
+            write(reverseSpeed)
+            write(2098 - 50)
+            sleep(2)
+            write(1500)
+            sleep(1)
+            write(speed)
+            write(2098)
+            sleep(1)
+
+            #set reverse to false as the turn is over and add 2 to t to make up for the missing turns
+            reverse = False
+            t += 2
+
         #if angle is different from previous angle
-        if angle != prevAngle:
+        elif angle != prevAngle:
           
             #if the area of the lane the car is turning towards is greater than or equal to exitThresh and tSignal is false meaning the blue or orange line is not currently detected
             if ((rightArea >= exitThresh and rTurn) or (leftArea >= exitThresh and lTurn)) and not tSignal: 
@@ -359,13 +413,18 @@ if __name__ == '__main__':
                   #increase number of turns by 1
                   t += 1
 
+                  #if the car has completed 12 turns end the program
+                  if t == 12:
+                      stopCar()
+                      break
+
             #if in a right turn set the angle to sharpRight
             if rTurn:
-                angle = sharpRight
+                angle = sharpRight - 20
 
             #if in a left turn set the angle to sharpLeft
             elif lTurn:
-                angle = sharpLeft
+                angle = sharpLeft - 20
                 
             #write the angle which is kept in the bounds of sharpLeft and sharpRight
             write(max(min(angle, sharpLeft), sharpRight))
@@ -383,5 +442,3 @@ if __name__ == '__main__':
 
         #show image
         cv2.imshow("finalColor", img)
-        
-        print(t)
