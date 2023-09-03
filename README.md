@@ -36,13 +36,13 @@ Repository containing the engineering elements and details of Team Asparagus fro
 - [PiSugar S Pro 5000 mAh Lithium Battery + PiSugar Module Platform Attachment](https://www.amazon.ca/Portable-Platform-Raspberry-Accessories-handhold/dp/B097RCFHD2)
 - [HobbyWing Quicrun 2435 4500Kv Brushless Motor](https://www.xtremerc.ca/products/quicrun-wp-10bl60-waterproof-esc-1-10-car-sensorless?_pos=1&_sid=b1097ff43&_ss=r)
 - [Hobbywing Quicrun WP-16BL30 ESC](https://www.xtremerc.ca/products/hobbywing-quicrun-wp-16bl30-waterproof-1-18th-scale-brushless-esc?_pos=1&_sid=4aaa38826&_ss=r)
-- [URGENEX 7.4V Lipo Battery](https://www.amazon.ca/URGENEX-Battery-1800mAh-Rechargeable-Campatibal/dp/B0C38M7W2S/ref=mp_s_a_1_3?crid=2RVWOMXR6FZZE&keywords=li+po+battery&qid=1693610005&sprefix=li+po+battery%2Caps%2C120&sr=8-3)
+- [Hosim 7.4V 1600mAh 25C Li-Po Rechargeable Battery](https://www.amazon.ca/Hosim-2pcs-1600mAh-Connector-Li-Polymer/dp/B098QSLJKV/ref=sr_1_1?crid=1CW6MY67VAEBT&keywords=li+po+battery+1600+mah&qid=1693768567&sprefix=li+po+battery+1600+mah%2Caps%2C93&sr=8-1)
 - [LoveRPi Wide Angle Camera + CSI Cable](https://www.amazon.ca/gp/product/B07KF6QVPY/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [DKARDU DPST Switch](https://www.amazon.ca/gp/product/B09TKMR8J4/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 
-Our 3D printed parts weigh roughly 40 grams, which is around 2 dollars of filament cost. They consist of a platform and camera mount, printed by the Bambu Lab P1P printer.
+Our 3D-printed parts weigh roughly 75 grams, which is around $2.50 worth of filament. They consist of a platform and pieces to create a camera mount, printed by a Bambu Lab P1P 3D printer.
 
-Total Cost: $182.84 + $57.99 + $229.99 + $13.36 + $39.99 + $49.99 + $44.99 + $34.99 + $13.40 + $14.49 + $2 respectively = $684.04 and $772.97 with tax. (prices in CAD)
+Total Cost: $182.84 + $57.99 + $229.99 + $13.36 + $39.99 + $49.99 + $44.99 + $39.99 + $13.40 + $14.49 + $2.50 respectively = $689.04 and $778.61 with tax. (prices in CAD)
 ***
 ### Assembly
 
