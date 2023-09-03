@@ -138,9 +138,13 @@ We utilize both the x and y coordinates of the signal pillar to determine how to
 
 We calculate the error by taking the difference between this target x-coordinate and its current x-coordinate. Similar to wall following, we use a PD controller with different P and D values optimized for object avoidance as well as another value that changes the adjustment based on how close the pillar is to the car by tracking the y-coordinate, to adjust the car to avoid the obstacle. 
 
-Once the obstacle exits the region of interest and is no longer detectable. The car will go back to the wall following as explained in the Open Challenge Section until it locates another signal pillar or an orange or blue line to turn. 
+Once the obstacle exits the region of interest and is no longer detectable, the car will go back to the wall following as explained in the Open Challenge Section until it locates another signal pillar or an orange or blue line to turn. 
 
 During turns, when the camera detects a new signal pillar while not currently detecting a blue or orange line, the number of turns is updated by one with the car switching back to obstacle avoidance. This is done to avoid miscounting turns as our car sometimes sees the next pillar before passing the orange or blue line. 
+
+Whenever we pass by a pillar we keep track of its target in a variable, and then when we detect a blue or orange line after 7 turns, meaning we are done with the second lap, we can determine if we continue in the same direction or rotate around in the opposite direction as we can determine the colour of the pillar from its target. 
+
+To turn in the opposite direction. The car performs a three-point turn. Firstly, the car turns left at a sharp angle for a set amount of time. Secondly, the car drives right backward for a set amount of time. Finally, obstacle avoidance begins again as the car drives forward while adjusting its angle to the red pillar which is now in front of the car. 
 
 [Link to Video](https://www.youtube.com/watch?v=yourvideo)
 ***
