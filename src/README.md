@@ -1,6 +1,6 @@
 # Engineers Documentation
 
-Repository containing the engineering elements and details of Team XXXXXX from Canada, participating in the 2023 WRO Future Engineers competition.
+Repository containing the engineering elements and details of Team Asparagus from Canada, participating in the 2023 WRO Future Engineers competition.
 
 ***
 
@@ -38,13 +38,14 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 - [Vemico Raspberry Pi 4 Board + Fan](https://www.amazon.ca/gp/product/B09WXRCYL4/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [SanDisk 64GB Ultra microSD Card](https://www.amazon.ca/gp/product/B073JYVKNX/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&th=1)
 - [PiSugar S Pro 5000 mAh Lithium Battery + PiSugar Module Platform Attachment](https://www.amazon.ca/Portable-Platform-Raspberry-Accessories-handhold/dp/B097RCFHD2)
-- [GoolRC 2435 Brushless Motor + 25A ESC](https://www.amazon.ca/gp/product/B01CCRZHNI/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
+- [HobbyWing Quicrun 2435 4500Kv Brushless Motor](https://www.xtremerc.ca/products/quicrun-wp-10bl60-waterproof-esc-1-10-car-sensorless?_pos=1&_sid=b1097ff43&_ss=r)
+- [Hobbywing Quicrun WP-16BL30 ESC](https://www.xtremerc.ca/products/hobbywing-quicrun-wp-16bl30-waterproof-1-18th-scale-brushless-esc?_pos=1&_sid=4aaa38826&_ss=r)
 - [LoveRPi Wide Angle Camera + CSI Cable](https://www.amazon.ca/gp/product/B07KF6QVPY/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [DKARDU DPST Switch](https://www.amazon.ca/gp/product/B09TKMR8J4/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 
 Our 3D printed parts weigh roughly 40 grams, which is around 2 dollars of filament cost. They consist of a platform and camera mount, printed by the Bambu Lab P1P printer.
 
-Total Cost: $182.84 + $57.99 + $229.99 + $13.36 + $39.99 + $32.99 + $13.40 + $14.49 + $2 respectively = $587.05 and $663.37 with tax. (prices in CAD)
+Total Cost: $182.84 + $57.99 + $229.99 + $13.36 + $39.99 + $49.99 + $44.99 + $13.40 + $14.49 + $2 respectively = $649.05 and $733.43 with tax. (prices in CAD)
 
 ***
 
@@ -56,7 +57,7 @@ Total Cost: $182.84 + $57.99 + $229.99 + $13.36 + $39.99 + $32.99 + $13.40 + $14
 
 We used a prebuilt RC car chassis and made modifications to integrate the rest of our components onto the body of the car, including a new DC motor, a 3D printed platform, and circuit boards (all parts can be found in *Parts List* above). In addition, the receiver that allows the car to be controlled remotely was removed, as it was unnecessary and took up space.
 
-The robot moves through two different motors; a DC motor for driving and a servo motor for steering. The servo motor we use came attached with the prebuilt base, but we changed out the DC motor. The new DC motor is attached similarly to the original, under the 3D printed platform, and takes up roughly the same amount of space. It is held tightly with a metal bracket and screw to prevent it from moving.
+The robot moves through two different motors; a DC motor for driving and a servo motor for steering. The servo motor we use came attached with the prebuilt base, but we changed out the DC motor. The new motor is attached similarly to the original, under the 3D printed platform, and takes up roughly the same amount of space. It is held tightly with a metal bracket and screw to prevent it from moving.
 
 We chose this motor because there are various YouTube videos of it being implemented on our exact RC car chassis. It is also a similar size to the original motor, making it easier to replace. The new motor is also a brushless motor, as compared to the original which is a brushed motor. Brushless motors work similarly to brushed motors using the same principles of magnetic attraction/repulsion but don't have the "brushes" that would normally cause friction and reduce the efficiency of the motor.
 
