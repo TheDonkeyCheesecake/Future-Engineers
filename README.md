@@ -54,7 +54,7 @@ The robot moves through two different motors; a DC motor for driving and a servo
 
 We chose this motor as it was one of the highest quality DC motors we could find locally that was of the right size to fit our RC car. This motor provides superior torque to other motors we have tried, an aspect crucial to the function of our car as it helps the car run smoother and avoid cogging at lower speeds. This motor is also brushless meaning higher efficiency and better performance as it doesn't contain the "brushes" that would normally cause friction and reduce the motor's efficiency. 
 
-Unfortunately, even with the higher quality motor, our car still suffers from cogging occasionally when running at low speeds due to the inevitable weight added to the chassis due to our electromagnetic components which restrict the motor movement. 
+Unfortunately, even with the higher quality motor, our car still suffers from cogging occasionally when running at low speeds due to the inevitable weight added to the chassis due to our electromagnetic components, which restricts the motor's movement. 
 
 The other component under the platform is the ESC (electronic speed controller), which is wired to and controls the speed of the newly added DC motor. It is also connected to the Hosim 1600mAh Li-Polymer Battery, placed right next to it, supplying a sufficient 7.4V.
 
