@@ -1,6 +1,6 @@
 # Engineers Documentation
 
-Repository containing the engineering elements and details of Team XXXXXX from Canada, participating in the 2023 WRO Future Engineers competition.
+Repository containing the engineering elements and details of Team Asparagus from Canada, participating in the 2023 WRO Future Engineers competition.
 ***
 ## Repository Content
 
@@ -31,17 +31,15 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 - [Vemico Raspberry Pi 4 Board + Fan](https://www.amazon.ca/gp/product/B09WXRCYL4/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [SanDisk 64GB Ultra microSD Card](https://www.amazon.ca/gp/product/B073JYVKNX/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&th=1)
 - [PiSugar S Pro 5000 mAh Lithium Battery + PiSugar Module Platform Attachment](https://www.amazon.ca/Portable-Platform-Raspberry-Accessories-handhold/dp/B097RCFHD2)
-- [GOOLSKY 2435 3300KV Brushless Motor and 25A ESC](https://www.amazon.ca/dp/B0BTH3ZRDH?psc=1&ref=ppx_yo2ov_dt_b_product_details)
-- [Hosim 1600mAh Li-Polymer Battery](https://www.amazon.ca/gp/product/B098QSLJKV/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
+- [HobbyWing Quicrun 2435 4500Kv Brushless Motor](https://www.xtremerc.ca/products/quicrun-wp-10bl60-waterproof-esc-1-10-car-sensorless?_pos=1&_sid=b1097ff43&_ss=r)
+- [Hobbywing Quicrun WP-16BL30 ESC](https://www.xtremerc.ca/products/hobbywing-quicrun-wp-16bl30-waterproof-1-18th-scale-brushless-esc?_pos=1&_sid=4aaa38826&_ss=r)
+- [URGENEX 7.4V Lipo Battery](https://www.amazon.ca/URGENEX-Battery-1800mAh-Rechargeable-Campatibal/dp/B0C38M7W2S/ref=mp_s_a_1_3?crid=2RVWOMXR6FZZE&keywords=li+po+battery&qid=1693610005&sprefix=li+po+battery%2Caps%2C120&sr=8-3)
 - [LoveRPi Wide Angle Camera + CSI Cable](https://www.amazon.ca/gp/product/B07KF6QVPY/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 - [DKARDU DPST Switch](https://www.amazon.ca/gp/product/B09TKMR8J4/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
-- [Kallaudo 90 Degree USB Printer Cable](https://www.amazon.ca/dp/B0C39V3J9T?ref=ppx_yo2ov_dt_b_product_details&th=1)
 
-Our 3D-printed parts weigh roughly 75 grams, which is around $2.50 worth of filament. They consist of a platform and pieces to create a camera mount, printed by a Bambu Lab P1P 3D printer.
+Our 3D printed parts weigh roughly 40 grams, which is around 2 dollars of filament cost. They consist of a platform and camera mount, printed by the Bambu Lab P1P printer.
 
-![3D Printed Parts](image-link.png)
-
-Total Cost: `$182.84` + `$57.99` + `$229.99` + `$13.36` + `$39.99` + `$39.99` + `$39.99` + `$13.40` + `$14.49` + `$2` respectively = `$634.04` and `$716.47` with tax. (prices in CAD)
+Total Cost: $182.84 + $57.99 + $229.99 + $13.36 + $39.99 + $49.99 + $44.99 + $34.99 + $13.40 + $14.49 + $2 respectively = $684.04 and $772.97 with tax. (prices in CAD)
 ***
 ### Assembly
 
