@@ -20,7 +20,10 @@ Repository containing the engineering elements and details of Team XXXXXX from C
 - Eric Rao, 15, [ericrao08@gmail.com](mailto:ericrao08@gmail.com)
 
 
-![Team Members](https://github.com/TheDonkeyCheesecake/Future-Engineers/blob/main/t-photos/Official.jpg)
+![Serious](https://github.com/TheDonkeyCheesecake/Future-Engineers/blob/main/t-photos/Official.jpg)
+*Weston(left), Brian(middle), Eric(right)*
+
+![Funny](https://github.com/TheDonkeyCheesecake/Future-Engineers/blob/main/t-photos/Funny.jpg)
 ***
 ## Hardware List and Assembly
 
