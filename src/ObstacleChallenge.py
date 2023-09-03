@@ -35,6 +35,7 @@ def displayROI():
 
 #function to bring the car to a stop
 def stopCar():
+    write(1440)
     sleep(2)
     write(2098)
     write(1500)
@@ -61,8 +62,8 @@ if __name__ == '__main__':
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     #set the target x coordinates for each red and green pillar
-    redTarget = 160
-    greenTarget = 500
+    redTarget = 190
+    greenTarget = 490
 
     #variable that keeps track of the target of the last pillar the car has passed
     lastTarget = 0
@@ -81,7 +82,7 @@ if __name__ == '__main__':
     # order: x1, y1, x2, y2
     ROI1 = [25, 210, 330, 300]
     ROI2 = [330, 165, 640, 285]
-    ROI3 = [redTarget - 60, 200, greenTarget + 60, 400]
+    ROI3 = [redTarget - 50, 200, greenTarget + 60, 400]
     ROI4 = [200, 350, 440, 400]
 
     #booleans for tracking whether car is in a left or right turn
@@ -104,9 +105,9 @@ if __name__ == '__main__':
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1441 #variable for initial speed of the car
+    speed = 1445 #variable for initial speed of the car
     tSpeed = 1439 #variable for speed of the car during turn to opposite direction
-    reverseSpeed = 1600 #variable for speed of the car going backwards
+    reverseSpeed = 1605 #variable for speed of the car going backwards
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -320,7 +321,7 @@ if __name__ == '__main__':
             prevDiff = aDiff
 
             #if the areas of the two walls are above a threshold meaning we are facing the wall and are also close to the wall
-            if leftArea > 5000 and rightArea > 5000:
+            if leftArea > 7000 and rightArea > 7000:
 
                 #if the last pillar the car passed was green take a hard right turn and if the last pillar was red take a hard left turn
                 if lastTarget == greenTarget:
@@ -382,19 +383,18 @@ if __name__ == '__main__':
         if reverse:
 
             #code to implement a three point turn
-            write(tSpeed)
+            write(tSpeed - 1)
             write(2098 + 50)
-            sleep(2)
+            sleep(1.5)
             write(1500)
             sleep(1)
             write(reverseSpeed)
             write(2098 - 50)
-            sleep(2)
+            sleep(1.5)
             write(1500)
             sleep(1)
             write(speed)
-            write(2098)
-            sleep(1)
+           
 
             #set reverse to false as the turn is over and add 2 to t to make up for the missing turns
             reverse = False
