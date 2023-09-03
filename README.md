@@ -52,7 +52,9 @@ We used a prebuilt RC car chassis and made modifications to integrate the rest o
 
 The robot moves through two different motors; a DC motor for driving and a servo motor for steering. The servo motor we use came attached to the prebuilt base, but we changed out the DC motor. The new DC motor is attached similarly to the original, under the 3D printed platform, and takes up roughly the same amount of space. It is held tightly with a metal bracket and screw to prevent it from moving.
 
-We chose this motor because there are various YouTube videos of it being implemented on our exact RC car chassis. It is also a similar size to the original motor, making it easier to replace. The new motor is also a brushless motor, as compared to the original which is a brushed motor. Brushless motors work similarly to brushed motors using the same principles of magnetic attraction/repulsion but don't have the "brushes" that would normally cause friction and reduce the motor's efficiency.
+We chose this motor as it was one of the highest quality DC motors we could find locally that was of the right size to fit our RC car. This motor provides superior torque to other motors we have tried, an aspect crucial to the function of our car as it helps the car run smoother and avoid cogging at lower speeds. This motor is also brushless meaning higher efficiency and better performance as it doesn't contain the "brushes" that would normally cause friction and reduce the motor's efficiency. 
+
+Unfortunately, even with the higher quality motor, our car still suffers from cogging occasionally when running at low speeds due to the inevitable weight added to the chassis due to our electromagnetic components which restrict the motor movement. 
 
 The other component under the platform is the ESC (electronic speed controller), which is wired to and controls the speed of the newly added DC motor. It is also connected to the Hosim 1600mAh Li-Polymer Battery, placed right next to it, supplying a sufficient 7.4V.
 
