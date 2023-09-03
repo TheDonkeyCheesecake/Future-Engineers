@@ -55,8 +55,8 @@ if __name__ == '__main__':
 
     #lists storing coordinates for the regions of interest to find contours of the lanes and the orange line 
     # order: x1, y1, x2, y2
-    ROI1 = [65, 225, 315, 305]
-    ROI2 = [380, 200, 620, 280]
+    ROI1 = [65, 225, 315, 335]
+    ROI2 = [380, 200, 600, 270]
     ROI3 = [200, 350, 440, 400]
 
     #booleans for tracking whether car is in a left or right turn
@@ -71,26 +71,26 @@ if __name__ == '__main__':
     straightConst = 98 #angle in which car goes straight
 
     turnThresh = 75 #if area of a lane is under this threshold car goes into a turn
-    exitThresh = 800 #if area of both lanes is over this threshold car exits a turn
+    exitThresh = 1200 #if area of both lanes is over this threshold car exits a turn
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
-    tDeviation = 25 #value used to calculate the how far left and right the car turns during a turn
+    tDeviation = 23 #value used to calculate the how far left and right the car turns during a turn
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1440 #variable for the speed of the car
+    speed = 1437 #variable for the speed of the car
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
 
     sleep(8) #delay 8 seconds for the servo to be ready
-
+    '''
     #if button is pressed break out of loop and proceed with rest of program
     while True:
         if GPIO.input(5) == GPIO.LOW:
             break
-
+    '''
     #write initial values to car
     write(speed) 
     write(angle)
@@ -112,7 +112,7 @@ if __name__ == '__main__':
         
         # black mask
         lower_black = np.array([0, 0, 0])
-        upper_black = np.array([180, 255, 70])
+        upper_black = np.array([180, 255, 60])
         
         imgThresh = cv2.inRange(img_hsv, lower_black, upper_black)
         
