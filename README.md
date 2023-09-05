@@ -104,7 +104,9 @@ We use Python for the Raspberry Pi code and a variant of C++ designed for Arduin
 - `RPi.GPIO` (for GPIO control on the Raspberry Pi)
 - `numpy` (for numerical operations)
 
-The camera captures an image which is first converted from BGR (color) to grayscale using OpenCV. Binary thresholding is applied to create a binary image, which emphasizes the lanes by setting pixel values to black for areas of interest (walls) and white (other). The script detects the contours of the left and right lanes using the thresholded binary image. The contours are extracted within specific regions of interest (ROIs) defined earlier in the code.
+The camera captures an image which is first converted from BGR (color) to grayscale using OpenCV. Binary thresholding is applied to create a binary image, which emphasizes the lanes by setting pixel values to black for areas of interest (walls) and white (other). The script detects the contours of the left and right lanes using the thresholded binary image. The contours are extracted within specific regions of interest (ROIs) defined earlier in the code. This method is utilized in the obstacle challenge where we utilize the orange and blue lines on the ground to turn instead of the area of the lanes.
+
+In the open challenge, we create a black mask using HSV colour ranges and similarly extract the contours. We found that this method is better at not detecting the blue line in the mask, which is very close to the shade of the black walls. This is important as we use the areas of the lanes to determine when to turn as explained below and detecting the blue line as the wall would disrupt the logic of the program and cause the car to turn later than it should as it would add to the area of the lanes in each region of interest. 
 
 The following algorithms are only used in the obstacle challenge, which requires slightly more camera vision. A key difference between these programs is the use of HSV (hue, saturation, and vibrance, a method of color representation similar to RGB) to detect color rather than using grayscale
 ***
