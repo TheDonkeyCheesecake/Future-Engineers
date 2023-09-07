@@ -65,8 +65,8 @@ if __name__ == '__main__':
   
     t = 0 #number of turns car has completed
     
-    kp = 0.0035 #value of proportional for proportional steering
-    kd = 0.0035 #value of derivative for proportional and derivative sterring
+    kp = 0.004 #value of proportional for proportional steering
+    kd = 0.004 #value of derivative for proportional and derivative sterring
     
     straightConst = 98 #angle in which car goes straight
 
@@ -75,22 +75,22 @@ if __name__ == '__main__':
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
-    tDeviation = 23 #value used to calculate the how far left and right the car turns during a turn
+    tDeviation = 24 #value used to calculate the how far left and right the car turns during a turn
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1437 #variable for the speed of the car
+    speed = 1440 #variable for the speed of the car
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
 
     sleep(8) #delay 8 seconds for the servo to be ready
-    '''
+    
     #if button is pressed break out of loop and proceed with rest of program
     while True:
         if GPIO.input(5) == GPIO.LOW:
             break
-    '''
+    
     #write initial values to car
     write(speed) 
     write(angle)
@@ -215,8 +215,8 @@ if __name__ == '__main__':
         prevDiff = aDiff
             
         #stop the car and end the program if either q is pressed or the car has done 3 laps (12 turns) and is mostly straight (within 15 degrees)
-        if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 15):
-            sleep(0.25)
+        if cv2.waitKey(1)==ord('q') or (t == 12 and abs(angle - (straightConst + 2000)) <= 10):
+            sleep(1)
             stopCar() 
             break
         
