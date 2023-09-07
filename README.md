@@ -104,9 +104,7 @@ We use Python for the Raspberry Pi code and a variant of C++ designed for Arduin
 - `RPi.GPIO` (for GPIO control on the Raspberry Pi)
 - `numpy` (for numerical operations)
 
-The camera captures an image which is first converted from BGR (color) to grayscale using OpenCV. Binary thresholding is applied to create a binary image, which emphasizes the lanes by setting pixel values to black for areas of interest (walls) and white (other). The script detects the contours of the left and right lanes using the thresholded binary image. The contours are extracted within specific regions of interest (ROIs) defined earlier in the code. This method is utilized in the obstacle challenge where we utilize the orange and blue lines on the ground to turn instead of the area of the lanes.
-
-In the open challenge, we create a black mask using HSV colour ranges and similarly extract the contours. We found that this method is better at not detecting the blue line in the mask, which is very close to the shade of the black walls. This is important as we use the areas of the lanes to determine when to turn as explained below and detecting the blue line as the wall would disrupt the logic of the program and cause the car to turn later than it should as it would add to the area of the lanes in each region of interest. 
+The camera captures an image which is first converted from BGR (color) to grayscale using OpenCV. Binary thresholding is applied to create a binary image, which emphasizes the lanes by setting pixel values to white for areas of interest (walls) and black (other). The script detects the contours of the left and right lanes using the thresholded binary image. The contours are extracted within specific regions of interest (ROIs) defined earlier in the code. 
 
 The following algorithms are only used in the obstacle challenge, which requires slightly more camera vision. A key difference between these programs is the use of HSV (hue, saturation, and vibrance, a method of color representation similar to RGB) to detect color rather than using grayscale
 ***
@@ -128,6 +126,8 @@ In addition, we also use a PD (Proportional and Derivative) follower algorithm t
 
 The second part, turning is pretty simple. When we detect that one ROI has a significantly low number of black pixels, then we turn in that direction, as it means that we are nearing a corner. Once that region of interest returns to a larger number of pixels, we end the turning program and return to the wall-following algorithm.
 
+In the open challenge, instead of using binary thresholding, we create a black mask using HSV colour ranges to extract the contours of the walls in the same way as signal pillar detection. This is necessary as we found that binary thresholding is unable to distinguish the blue line and the black walls. This is detrimental to our logic as detecting these extra pixels will cause the car to turn later than it should as it would add unaccounted area to the regions of interest of the walls. 
+
 To keep track of our laps, we count each time the turning program is run, up until 12 (4 corners x 3 laps), and stop the robot once its orientation is relatively straight. We also check to see if our camera actually sees an orange line while turning through the third region of interest, to ensure that we are at the corner.
 
 [Link to Video](https://www.youtube.com/watch?v=yourvideo)
@@ -144,11 +144,13 @@ We calculate the error by taking the difference between this target x-coordinate
 
 Once the obstacle exits the region of interest and is no longer detectable, the car will go back to the wall following as explained in the Open Challenge Section until it locates another signal pillar or an orange or blue line to turn. 
 
-During turns, when the camera detects a new signal pillar while not currently detecting a blue or orange line, the number of turns is updated by one with the car switching back to obstacle avoidance. This is done to avoid miscounting turns as our car sometimes sees the next pillar before passing the orange or blue line. 
+During turns, when the camera detects a new signal pillar while not currently detecting a blue or orange line, the turn ends with the number of turns being updated by one with the car switching back to obstacle avoidance. This is done to avoid miscounting turns as our car sometimes sees the next pillar before passing the orange or blue line. If the camera does not detect a signal pillar during a turn, we use the same method as the open challenge to end the turn: checking if the area of the lane the car is turning towards has increased past a certain threshold. 
 
 Whenever we pass by a pillar we keep track of its target in a variable, and then when we detect a blue or orange line after 7 turns, meaning we are done with the second lap, we can determine if we continue in the same direction or rotate around in the opposite direction as we can determine the colour of the pillar from its target. 
 
 To turn in the opposite direction. The car performs a three-point turn. Firstly, the car turns left at a sharp angle for a set amount of time. Secondly, the car drives right backward for a set amount of time. Finally, obstacle avoidance begins again as the car drives forward while adjusting its angle to the red pillar which is now in front of the car. 
+
+Once we count 12 laps, we create a timer for 3 seconds if we see a signal pillar at the end of the twelfth turn, and a timer for 2 seconds if we see the lane at the end of the twelfth turn. After the timer runs out, the program ends and the car comes to a stop. 
 
 [Link to Video](https://www.youtube.com/watch?v=yourvideo)
 ***
