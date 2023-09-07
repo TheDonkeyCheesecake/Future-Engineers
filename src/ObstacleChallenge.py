@@ -3,6 +3,7 @@ import cv2
 from picamera2 import Picamera2
 import serial
 from time import sleep
+import time
 import RPi.GPIO as GPIO
 import numpy as np
 
@@ -35,8 +36,8 @@ def displayROI():
 
 #function to bring the car to a stop
 def stopCar():
-    write(1440)
-    sleep(2)
+    #write(1438)
+    #sleep(1)
     write(2098)
     write(1500)
     cv2.destroyAllWindows()
@@ -63,7 +64,7 @@ if __name__ == '__main__':
 
     #set the target x coordinates for each red and green pillar
     redTarget = 190
-    greenTarget = 490
+    greenTarget = 450
 
     #variable that keeps track of the target of the last pillar the car has passed
     lastTarget = 0
@@ -80,9 +81,9 @@ if __name__ == '__main__':
     #ROI3: for finding signal pillars
     #ROI4: for detecting blue and orange lines on mat
     # order: x1, y1, x2, y2
-    ROI1 = [25, 210, 330, 300]
+    ROI1 = [25, 190, 330, 300]
     ROI2 = [330, 165, 640, 285]
-    ROI3 = [redTarget - 50, 200, greenTarget + 60, 400]
+    ROI3 = [redTarget - 50, 190, greenTarget + 50, 400]
     ROI4 = [200, 350, 440, 400]
 
     #booleans for tracking whether car is in a left or right turn
@@ -92,12 +93,12 @@ if __name__ == '__main__':
     kp = 0.0075 #value of proportional for proportional steering
     kd = 0.0075  #value of derivative for proportional and derivative sterring
 
-    cKp = 0.2 #value of proportional for proportional steering for avoiding signal pillars
-    cKd = 0.2 #value of derivative for proportional and derivative sterring for avoiding signal pillars
-    cy = 0.12 #value used to affect pd steering based on how close the pillar is based on its y coordinate
+    cKp = 0.17 #value of proportional for proportional steering for avoiding signal pillars
+    cKd = 0.17 #value of derivative for proportional and derivative sterring for avoiding signal pillars
+    cy = 0.075 #value used to affect pd steering based on how close the pillar is based on its y coordinate
   
     straightConst = 98 #angle in which car goes straight
-    exitThresh = 1500 #if area of both lanes is over this threshold car exits a turn
+    exitThresh = 4000 #if area of both lanes is over this threshold car exits a turn
   
     angle = 2098 #variable for the current angle of the car
     prevAngle = angle #variable tracking the angle of the previous iteration
@@ -105,9 +106,12 @@ if __name__ == '__main__':
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1445 #variable for initial speed of the car
-    tSpeed = 1439 #variable for speed of the car during turn to opposite direction
-    reverseSpeed = 1605 #variable for speed of the car going backwards
+    speed = 1444 #variable for initial speed of the car
+    tSpeed = 1441 #variable for speed of the car during turn to opposite direction
+    reverseSpeed = 1610 #variable for speed of the car going backwards
+    
+    stopTime = 0
+    s = 0 
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -130,13 +134,17 @@ if __name__ == '__main__':
         if GPIO.input(5) == GPIO.LOW:
             break
     '''
-    
     #write initial values to car
     write(speed) 
     write(angle)
 
     #main loop
     while True:
+        
+        if stopTime != 0:
+            if time.time() - stopTime > s:
+                stopCar()
+                break
             
         #reset rightArea, and leftArea variables
         rightArea, leftArea = 0, 0
@@ -313,7 +321,7 @@ if __name__ == '__main__':
 
             #calculate the difference in the left and right lane areas
             aDiff = rightArea - leftArea
-
+            print(aDiff)
             #calculate angle using PD steering
             angle = max(2000, int(straightConst + aDiff * kp + (aDiff - prevDiff) * kd) + 2000)
 
@@ -326,13 +334,10 @@ if __name__ == '__main__':
                 #if the last pillar the car passed was green take a hard right turn and if the last pillar was red take a hard left turn
                 if lastTarget == greenTarget:
                     angle = sharpRight
+                    print("green")
                 elif lastTarget == redTarget:
                     angle = sharpLeft
-
-            #if the car has finished 12 turns end the program
-            elif t == 12:
-                stopCar()
-                break
+                    print("red")
             
 
         #if pillar is detected
@@ -351,6 +356,11 @@ if __name__ == '__main__':
 
                 #add a turn
                 t += 1
+                
+                if t == 12:
+                    stopTime = time.time()
+                    if s == 0:
+                        s = 3
             
             #calculate error based on the difference between the target x coordinate and the pillar's current x coordinate
             error = cTarget - contX
@@ -365,19 +375,13 @@ if __name__ == '__main__':
                 angle += int(cy * (contY - ROI3[1]))
 
             #if the cTarget is equal to greenTarget or redTarget meaning we have a green pillar or a redPillar and the pillar has already exceeded its x target and is also close to the bottom of the ROI, set LastTarget to the respective target as we have basically passed the pillar. 
-            if cTarget == greenTarget and contX > greenTarget and contY > ROI3[1] + 150:
+            if cTarget == greenTarget and contX > greenTarget and contY > ROI3[1] + 50:
                 lastTarget = greenTarget
-            elif cTarget == redTarget and contX < redTarget and contY > ROI3[1] + 150:
+            elif cTarget == redTarget and contX < redTarget and contY > ROI3[1] + 50:
                 lastTarget = redTarget
 
             #make sure angle value is over 2000 
             angle = max(2000, angle)
-                
-            #reset variables for next iteration 
-            prevError = error
-            contY = 0
-            contX = 0
-            cTarget = 0
 
         #if the car needs to turn around to the opposite direction
         if reverse:
@@ -385,7 +389,7 @@ if __name__ == '__main__':
             #code to implement a three point turn
             write(tSpeed - 1)
             write(2098 + 50)
-            sleep(1.5)
+            sleep(0.5)
             write(1500)
             sleep(1)
             write(reverseSpeed)
@@ -415,16 +419,17 @@ if __name__ == '__main__':
 
                   #if the car has completed 12 turns end the program
                   if t == 12:
-                      stopCar()
-                      break
+                      stopTime = time.time()
+                      if s == 0: 
+                          s = 2
 
             #if in a right turn set the angle to sharpRight
-            if rTurn:
-                angle = sharpRight - 20
+            if rTurn and cTarget == 0:
+                angle = sharpRight
 
             #if in a left turn set the angle to sharpLeft
-            elif lTurn:
-                angle = sharpLeft - 20
+            elif lTurn and cTarget == 0:
+                angle = sharpLeft
                 
             #write the angle which is kept in the bounds of sharpLeft and sharpRight
             write(max(min(angle, sharpLeft), sharpRight))
@@ -437,8 +442,14 @@ if __name__ == '__main__':
         prevAngle = angle #update previous angle
         tSignal = False #reset tSignal
         
+        #reset variables for next iteration 
+        prevError = error
+        contY = 0
+        contX = 0
+        cTarget = 0
+        
         #display regions of interest
         displayROI()
 
         #show image
-        cv2.imshow("finalColor", img)
+        cv2.imshow("finalColor", img) 
