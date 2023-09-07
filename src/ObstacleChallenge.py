@@ -109,9 +109,10 @@ if __name__ == '__main__':
     speed = 1444 #variable for initial speed of the car
     tSpeed = 1441 #variable for speed of the car during turn to opposite direction
     reverseSpeed = 1610 #variable for speed of the car going backwards
+
     
-    stopTime = 0
-    s = 0 
+    stopTime = 0 #stores the time of when the car begins its stopping progress
+    s = 0 #stores for how many seconds the car runs after stopTime
     
     aDiff = 0 #value storing the difference of area between contours
     prevDiff = 0 #value storing the previous difference of contours for derivative steering
@@ -140,7 +141,8 @@ if __name__ == '__main__':
 
     #main loop
     while True:
-        
+
+        #if s seconds has passed after the car began the stopping process, end the program and stop the car
         if stopTime != 0:
             if time.time() - stopTime > s:
                 stopCar()
@@ -356,7 +358,8 @@ if __name__ == '__main__':
 
                 #add a turn
                 t += 1
-                
+
+                #if car is done 3 laps begin the stopping process by setting stopTime to the current time and s to 3 
                 if t == 12:
                     stopTime = time.time()
                     if s == 0:
@@ -417,17 +420,17 @@ if __name__ == '__main__':
                   #increase number of turns by 1
                   t += 1
 
-                  #if the car has completed 12 turns end the program
+                  #if car is done 3 laps begin the stopping process by setting stopTime to the current time and s to 2 
                   if t == 12:
                       stopTime = time.time()
                       if s == 0: 
                           s = 2
 
-            #if in a right turn set the angle to sharpRight
+            #if in a right turn and no pillar is detected set the angle to sharpRight
             if rTurn and cTarget == 0:
                 angle = sharpRight
 
-            #if in a left turn set the angle to sharpLeft
+            #if in a left turn and no pillar is detected set the angle to sharpLeft
             elif lTurn and cTarget == 0:
                 angle = sharpLeft
                 
