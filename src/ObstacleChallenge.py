@@ -90,8 +90,8 @@ if __name__ == '__main__':
     lTurn = False
     rTurn = False
   
-    kp = 0.0075 #value of proportional for proportional steering
-    kd = 0.0075  #value of derivative for proportional and derivative sterring
+    kp = 0.005 #value of proportional for proportional steering
+    kd = 0.005  #value of derivative for proportional and derivative sterring
 
     cKp = 0.17 #value of proportional for proportional steering for avoiding signal pillars
     cKd = 0.17 #value of derivative for proportional and derivative sterring for avoiding signal pillars
@@ -129,12 +129,16 @@ if __name__ == '__main__':
     tSignal = False #boolean that makes sure that a pillar doesn't affect a turn too early
 
     sleep(8) #delay 8 seconds for the servo to be ready
-    '''
+    
+    write(9999)
+    
     #if button is pressed break out of loop and proceed with rest of program
     while True:
         if GPIO.input(5) == GPIO.LOW:
             break
-    '''
+        
+    sleep(0.5) 
+    
     #write initial values to car
     write(speed) 
     write(angle)
@@ -284,7 +288,7 @@ if __name__ == '__main__':
               if turnDir == "right":
 
                   #if the last pillar we passed is red and we have already completed 7 turns meaning this is the 8th turn 
-                  if lastTarget == redTarget and t == 7:
+                  if lastTarget == redTarget and t == 0:
 
                       reverse = True #set reverse to true so the car turns and reverses its direction
                       turnDir = "left" #change the turn direction as we are heading in the opposite direction
@@ -308,7 +312,7 @@ if __name__ == '__main__':
               if turnDir == "left":
 
                   #if the last pillar we passed is red and we have already completed 7 turns meaning this is the 8th turn 
-                  if lastTarget == redTarget and t == 7:
+                  if lastTarget == redTarget and t == 0:
                     
                       reverse = True #set reverse to true so the car turns and reverses its direction
                       turnDir = "right" #change the turn direction as we are heading in the opposite direction
@@ -392,11 +396,11 @@ if __name__ == '__main__':
             #code to implement a three point turn
             write(tSpeed - 1)
             write(2098 + 50)
-            sleep(0.5)
+            sleep(1.5)
             write(1500)
             sleep(1)
             write(reverseSpeed)
-            write(2098 - 50)
+            write(2098 - 60)
             sleep(1.5)
             write(1500)
             sleep(1)
@@ -455,4 +459,4 @@ if __name__ == '__main__':
         displayROI()
 
         #show image
-        cv2.imshow("finalColor", img) 
+        #cv2.imshow("finalColor", img) 
