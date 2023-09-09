@@ -21,6 +21,8 @@ Repository containing the engineering elements and details of Team Asparagus fro
 
 
 ![Serious](https://github.com/TheDonkeyCheesecake/Future-Engineers/blob/main/t-photos/Official.jpg)
+<img src="https://github.com/TheDonkeyCheesecake/Future-Engineers/blob/main/t-photos/Official.jpg" alt="Serious" width="50%" height=50% title="serious">
+
 *Weston(left), Brian(middle), Eric(right)*
 
 ![Funny](https://github.com/TheDonkeyCheesecake/Future-Engineers/blob/main/t-photos/Funny.jpg)
