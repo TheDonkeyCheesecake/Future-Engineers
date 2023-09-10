@@ -5,12 +5,12 @@ Repository containing the engineering elements and details of Team Asparagus fro
 ## Repository Content
 
 - `models` - 3D printable files designed by us
+- `others` - other essential files
 - `schemes` - schematics of our robot's electrical systems
 - `src` - main and other programs to run/control software
 - `t-photos` - one serious and one funny photo
 - `v-photos` - photos of our robot from each angle
 - `video` - YouTube link of our robot running each program on the game field
-- `others` - other essential files
 ***
 ## Team Members
 
