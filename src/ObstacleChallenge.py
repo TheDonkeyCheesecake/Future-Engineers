@@ -63,8 +63,8 @@ if __name__ == '__main__':
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     #set the target x coordinates for each red and green pillar
-    redTarget = 190
-    greenTarget = 450
+    redTarget = 160
+    greenTarget = 480
 
     #variable that keeps track of the target of the last pillar the car has passed
     lastTarget = 0
@@ -106,9 +106,9 @@ if __name__ == '__main__':
     sharpRight = straightConst - tDeviation + 2000 #the default angle sent to the car during a right turn
     sharpLeft = straightConst + tDeviation + 2000 #the default angle sent to the car during a left turn
     
-    speed = 1444 #variable for initial speed of the car
-    tSpeed = 1441 #variable for speed of the car during turn to opposite direction
-    reverseSpeed = 1610 #variable for speed of the car going backwards
+    speed = 1442 #variable for initial speed of the car
+    tSpeed = 1434 #variable for speed of the car during turn to opposite direction
+    reverseSpeed = 1615 #variable for speed of the car going backwards
 
     
     stopTime = 0 #stores the time of when the car begins its stopping progress
@@ -186,7 +186,7 @@ if __name__ == '__main__':
         img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         #create red mask
-        lower_red = np.array([165, 175, 75])
+        lower_red = np.array([165, 175, 50])
         upper_red = np.array([180, 255, 255])
       
         r_mask = cv2.inRange(img_hsv, lower_red, upper_red)
@@ -288,7 +288,7 @@ if __name__ == '__main__':
               if turnDir == "right":
 
                   #if the last pillar we passed is red and we have already completed 7 turns meaning this is the 8th turn 
-                  if lastTarget == redTarget and t == 0:
+                  if lastTarget == redTarget and t == 7:
 
                       reverse = True #set reverse to true so the car turns and reverses its direction
                       turnDir = "left" #change the turn direction as we are heading in the opposite direction
@@ -312,7 +312,7 @@ if __name__ == '__main__':
               if turnDir == "left":
 
                   #if the last pillar we passed is red and we have already completed 7 turns meaning this is the 8th turn 
-                  if lastTarget == redTarget and t == 0:
+                  if lastTarget == redTarget and t == 7:
                     
                       reverse = True #set reverse to true so the car turns and reverses its direction
                       turnDir = "right" #change the turn direction as we are heading in the opposite direction
@@ -367,7 +367,8 @@ if __name__ == '__main__':
                 if t == 12:
                     stopTime = time.time()
                     if s == 0:
-                        s = 3
+                        write(tSpeed) 
+                        s = 2
             
             #calculate error based on the difference between the target x coordinate and the pillar's current x coordinate
             error = cTarget - contX
@@ -394,7 +395,7 @@ if __name__ == '__main__':
         if reverse:
 
             #code to implement a three point turn
-            write(tSpeed - 1)
+            write(tSpeed)
             write(2098 + 50)
             sleep(1.5)
             write(1500)
@@ -406,7 +407,6 @@ if __name__ == '__main__':
             sleep(1)
             write(speed)
            
-
             #set reverse to false as the turn is over and add 2 to t to make up for the missing turns
             reverse = False
             t += 2
@@ -427,8 +427,9 @@ if __name__ == '__main__':
                   #if car is done 3 laps begin the stopping process by setting stopTime to the current time and s to 2 
                   if t == 12:
                       stopTime = time.time()
-                      if s == 0: 
-                          s = 2
+                      if s == 0:
+                          write(tSpeed) 
+                          s = 1
 
             #if in a right turn and no pillar is detected set the angle to sharpRight
             if rTurn and cTarget == 0:
@@ -456,7 +457,7 @@ if __name__ == '__main__':
         cTarget = 0
         
         #display regions of interest
-        displayROI()
+        #displayROI()
 
         #show image
         #cv2.imshow("finalColor", img) 
