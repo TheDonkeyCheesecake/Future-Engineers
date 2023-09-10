@@ -4,7 +4,6 @@ Repository containing the engineering elements and details of Team Asparagus fro
 ***
 ## Repository Content
 
-- `chassis` - details of our robot chassis
 - `models` - 3D printable files designed by us
 - `schemes` - schematics of our robot's electrical systems
 - `src` - main and other programs to run/control software
