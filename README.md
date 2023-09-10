@@ -58,7 +58,7 @@ The other component under the platform is the ESC `(electronic speed controller)
 
 The motors are controlled by the `Arduino UNO R3 board`, placed on top of the platform using standoffs.
 
-To connect the Arduino, ESC, DC motor, and servo motor together, we use a custom-designed perfboard which all the wires plug into to form a circuit. The Arduino uses two PWM `(pulse width modulation)` ports to control the signals sent to both of the motors and an additional port to ground the circuit. The motors use 3 ports/wires each for power, signal, and ground. 
+To connect the Arduino, ESC, DC motor, and servo motor, we use a custom-designed perfboard which all the wires plug into to form a circuit. The Arduino uses two PWM `(pulse width modulation)` ports to control the signals sent to both of the motors and an additional port to ground the circuit. The motors use 3 ports/wires each for power, signal, and ground. 
 
 The DC motor is wired to and receives power directly from the ESC (which is connected to the battery), but the servo motor receives it from a BEC `(battery eliminator circuit)` inside the ESC, which is designed to provide a regulated and constant voltage supply to power low-power electronics, such as the servo motor.
 ***
@@ -66,9 +66,9 @@ The DC motor is wired to and receives power directly from the ESC (which is conn
 
 Beside the Arduino Board is the `Vemico Raspberry Pi 4 Board`, along with a fan for cooling and a `SanDisk 64GB Ultra microSD Card` to hold our programs. Wired and mounted on top of it is the `PiSugar Module Platform Attachment`, which also is fed power from the `PiSugar S Pro 5000 mAh Lithium Battery`. The battery provides 3.7V, which is then converted to 5V using a voltage regulator to meet the operating voltage requirement of the Raspberry Pi.
 
-We use two separate batteries for the ESC and Raspberry Pi in order to manage their battery lives independently, as they have different power/voltage requirements. It avoids the problem of having one circuit taking too much power from the battery and leaving an inadequate amount for the other.
+We use two separate batteries for the ESC and Raspberry Pi to manage their battery lives independently, as they have different power/voltage requirements. It avoids the problem of having one circuit taking too much power from the battery and leaving an inadequate amount for the other.
 
-The last component is the `LoveRPi Wide Angle Camera`, which is mounted with the help of a custom 3D-printed stand and is wired to the Raspberry Pi through a CSI cable. Although it is more complicated to use, we decided it would be more power-efficient than multiple ultrasonic/color sensors.
+The last component is the `LoveRPi Wide Angle Camera`, which is mounted with the help of a custom 3D-printed stand and is wired to the Raspberry Pi through a CSI cable. Although it is more complicated to use, we decided it would be more power-efficient than multiple ultrasonic/colour sensors.
 
 The Raspberry Pi is placed on top of a black box frame specifically made for it, holding it squarely in place, while also housing the fan inside to prevent the Raspberry Pi from overheating.
 
@@ -106,23 +106,23 @@ We use Python for the Raspberry Pi code and a variant of C++ designed for Arduin
 - `RPi.GPIO` (for GPIO control on the Raspberry Pi)
 - `numpy` (for numerical operations)
 
-The camera captures an image which is first converted from BGR (color) to grayscale using OpenCV. Binary thresholding is applied to create a binary image, which emphasizes the lanes by setting pixel values to white for areas of interest (walls) and black (other). The script detects the contours of the left and right lanes using the thresholded binary image. The contours are extracted within specific regions of interest `(ROIs)` defined earlier in the code. 
+The camera captures an image which is first converted from BGR (colour) to grayscale using OpenCV. Binary thresholding is applied to create a binary image, which emphasizes the lanes by setting pixel values to white for areas of interest (walls) and black (other). The script detects the contours of the left and right lanes using the thresholded binary image. The contours are extracted within specific regions of interest `(ROIs)` defined earlier in the code. 
 
-The following algorithms are only used in the obstacle challenge, which requires slightly more camera vision. A key difference between these programs is the use of HSV `(hue, saturation, and vibrance, a method of color representation similar to RGB)` to detect color rather than using grayscale
+The following algorithms are only used in the obstacle challenge, which requires slightly more camera vision. A key difference between these programs is the use of HSV `(hue, saturation, and vibrance, a method of colour representation similar to RGB)` to detect colour rather than using grayscale
 ***
 #### Signal Pillar Detection
 
-The program detects the contours of signal pillars (red and green) using color masks based on their respective HSV color ranges. The contours are then extracted within a specified ROI for obstacles.
+The program detects the contours of signal pillars (red and green) using colour masks based on their respective HSV colour ranges. The contours are then extracted within a specified ROI for obstacles.
 ***
 #### Corner Detection
 
-Similar to the signal pillar detection, the program detects the blue and orange line contours within another specified ROI using HSV color ranges and uses this to turn. Since the obstacle challenge requires the robot to frequently navigate close to walls in order to avoid obstacles, using the same method of turning as the open challenge (mentioned in the next segment) is very inconsistent and can lead to turns at the wrong times.
+Similar to the signal pillar detection, the program detects the blue and orange line contours within another specified ROI using HSV colour ranges and uses this to turn. Since the obstacle challenge requires the robot to frequently navigate close to walls to avoid obstacles, using the same method of turning as the open challenge (mentioned in the next segment) is very inconsistent and can lead to turns at the wrong times.
 ***
 ### Open Challenge
 
 Fundamentally, the Open Challenge only has two parts to it; wall steering and turning 90 degrees.
 
-Our wall steering program utilizes our camera to differentiate between the black walls and everything else. However, we don't actually look at the entire camera feed and rather only focus on three specific areas, which are ROIs as mentioned earlier. 
+Our wall steering program utilizes our camera to differentiate between the black walls and everything else. However, we don't look at the entire camera feed and rather only focus on three specific areas, which are ROIs as mentioned earlier. 
 
 Two of the three regions of interest are used for wall following while the third region of interest is used for counting turns. These two regions of interest were distinctively chosen so that when the robot is placed in the center of the track, the ROIs will both detect a similar amount of black pixels from the wall. This way, we know we are centered on the track when the two ROIs have similar amounts.
 
@@ -134,7 +134,7 @@ In the open challenge, instead of using binary thresholding, we create a black m
 
 This is necessary as we found that binary thresholding is unable to distinguish the blue line and the black walls. This is detrimental to our logic as detecting these extra pixels will cause the car to turn later than it should as it would add unaccounted area to the regions of interest of the walls. 
 
-To keep track of our laps, we count each time the turning program is run, up until 12 (4 corners x 3 laps), and stop the robot once its orientation is relatively straight. We also check to see if our camera actually sees an orange line while turning through the third region of interest, to ensure that we are at the corner.
+To keep track of our laps, we count each time the turning program is run, up until 12 (4 corners x 3 laps), and stop the robot once its orientation is relatively straight. We also check to see if our camera sees an orange line while turning through the third region of interest, to ensure that we are at the corner.
 
 [Link to Video](https://www.youtube.com/watch?v=jK7tx4uD-Eg)
 
@@ -147,7 +147,7 @@ The obstacle challenge brings the addition of one more segment of code; obstacle
 
 Avoiding the obstacles first involves finding the signal pillars through the signal pillar detection as explained above. 
 
-We utilize both the x and y coordinates of the signal pillar to determine how to navigate. Both the green and red signal pillars have a different set x-coordinate target on the frame that the x-coordinate of the currently detected signal pillar must reach in order for the car to pass on the correct side. 
+We utilize both the x and y coordinates of the signal pillar to determine how to navigate. Both the green and red signal pillars have a different set x-coordinate target on the frame that the x-coordinate of the currently detected signal pillar must reach for the car to pass on the correct side. 
 
 The target of the red pillar is on the left side of the frame as we need to pass on the right and the target of the green pillar is on the right side of the frame as we need to pass on the left. 
 
